@@ -140,6 +140,10 @@ else(MSVC)
     set(INTRINSICS "-msse4.1")
   endif()
 
+  if(COMPILE_WASM)
+    set(INTRINSICS "${INTRINSICS} -msimd128")
+  endif()
+
   if(USE_FBGEMM)
     set(EXT_LIBS ${EXT_LIBS} fbgemm dl)
     add_definitions(-DUSE_FBGEMM=1)

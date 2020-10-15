@@ -1,33 +1,64 @@
 # -*- mode: makefile-gmake; indent-tabs-mode: true; tab-width: 4 -*-
-SHELL   = bash
-PWD     = $(shell pwd)
-IMAGE   = emscripten/emsdk
+SHELL   		= bash
+PWD     		= $(shell pwd)
+NATIVE_IMAGE    = local/marian-build-native
+WASM_IMAGE	    = local/marian-build-wasm
 
-all: marian-decoder-wasm
+all: native-image wasm-image
+
+# Build the Docker image for native builds
+native-image:
+	docker build -t local/marian-build-native ./native/
+
+# Build the Docker image for WASM builds
+wasm-image:
+	docker build -t local/marian-build-wasm ./wasm/
 
 # Commands for compilation:
-marian_decoder_compile_cmd  = em++ -O2 -msse -msse2 -mssse3 -msse4.1 -mavx -msimd128
-marian_decoder_compile_cmd += -I../src/
-marian_decoder_compile_cmd += -I../src/3rd_party/
-marian_decoder_compile_cmd += -I../src/3rd_party/SQLiteCpp/include
-marian_decoder_compile_cmd += -I../src/3rd_party/sentencepiece/src
-marian_decoder_compile_cmd += -I../src/3rd_party/fbgemm/include
-marian_decoder_compile_cmd += -I../src/3rd_party/intgemm
-marian_decoder_compile_cmd += -I../src/3rd_party/
-marian_decoder_compile_cmd += ../src/command/marian_decoder.cpp
-marian_decoder_compile_cmd += -ferror-limit=100
+cmake_cmd  = cmake --debug-output -Wno-dev
+cmake_cmd += -DBUILD_ARCH=native
+cmake_cmd += -DCMAKE_BUILD_TYPE=Release
+cmake_cmd += -DUSE_STATIC_LIBS=on
+cmake_cmd += -DUSE_SENTENCEPIECE=on
+cmake_cmd += -DCOMPILE_CUDA=off
+native_cmake_cmd = ${cmake_cmd}
+native_cmake_cmd += -DMKL=on
+native_cmake_cmd += -DCOMPILE_CPU=on
+native_cmake_cmd += -DCOMPILE_WASM=off
+wasm_cmake_cmd = ${cmake_cmd}
+wasm_cmake_cmd += -DMKL=off
+wasm_cmake_cmd += -DCOMPILE_CPU=off
+wasm_cmake_cmd += -DCOMPILE_WASM=on
+wasm_cmake_cmd += -DCMAKE_PREFIX_PATH=/root/protobuf-wasm-lib/dist
+wasm_cmake_cmd += -DProtobuf_SRC_ROOT_FOLDER=/root/protobuf-wasm-lib/protobuf
+wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
+wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
+make_cmd  = make
+make_cmd += -j4
 
 # ... and running things on Docker
 docker_mounts  = ${PWD}/..:/repo
+docker_mounts += ${HOME}/.ccache:/.ccache
 run_on_docker  = docker run --rm
 run_on_docker += $(addprefix -v, ${docker_mounts})
-run_on_docker += ${INTERACTIVE_DOCKER_SESSION} ${IMAGE}
+run_on_docker += ${INTERACTIVE_DOCKER_SESSION}
+
+${HOME}/.ccache:
+	mkdir -p $@
+
+# Compile native version
+compile-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/build-native-docker && cd /repo/build-native-docker && (${native_cmake_cmd} /repo && ${make_cmd} || rm CMakeCache.txt)'
 
 # Compile to WASM
-marian-decoder-wasm:
-	${run_on_docker} bash -c 'mkdir -p /repo/build-marian-decoder-wasm && cd /repo/build-marian-decoder-wasm && ${marian_decoder_compile_cmd}'
+compile-wasm: ${HOME}/.ccache
+	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p /repo/build-wasm-docker && cd /repo/build-wasm-docker && (emcmake ${wasm_cmake_cmd} /repo && emmake ${make_cmd} || rm CMakeCache.txt)'
 
-# Start an interactive shell for development / debugging purposes
-shell: INTERACTIVE_DOCKER_SESSION = -it
-shell:
-	${run_on_docker} bash
+# Start interactive shells for development / debugging purposes
+native-shell: INTERACTIVE_DOCKER_SESSION = -it
+native-shell:
+	${run_on_docker} ${NATIVE_IMAGE} bash
+
+wasm-shell: INTERACTIVE_DOCKER_SESSION = -it
+wasm-shell:
+	${run_on_docker} ${WASM_IMAGE} bash
