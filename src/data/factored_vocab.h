@@ -29,6 +29,7 @@ public:
   virtual const std::vector<std::string>& suffixes() const override final;
   virtual Word operator[](const std::string& word) const override final;
   virtual Words encode(const std::string& line, bool addEOS = true, bool inference = false) const override final;
+  virtual Words encode(const char* startOfTextSpan, size_t lengthOfTextSpan, bool addEOS = true, bool inference = false) const override final;
   virtual std::string decode(const Words& sentence, bool ignoreEos = true) const override final;
   virtual std::string surfaceForm(const Words& sentence) const override final;
   virtual const std::string& operator[](Word id) const override final;

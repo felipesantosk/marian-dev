@@ -578,6 +578,11 @@ void FactoredVocab::constructNormalizationInfoForVocab() {
   return res;
 }
 
+/*virtual*/ Words FactoredVocab::encode(const char* startOfTextSpan, size_t lengthOfTextSpan, bool addEOS /*= true*/, bool /*inference*/ /*= false*/) const /*override final*/ {
+  std::string line(startOfTextSpan, lengthOfTextSpan);
+  return encode(line, addEOS);
+}
+
 // decode a 'Word' array into the external string representation of that token sequence, as written to output files
 /*virtual*/ std::string FactoredVocab::decode(const Words& sentence, bool ignoreEOS /*= true*/) const /*override final*/ {
   std::vector<std::string> decoded; decoded.reserve(sentence.size());

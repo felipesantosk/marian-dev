@@ -32,6 +32,11 @@ public:
                        bool addEOS = true,
                        bool inference = false) const = 0;
 
+  virtual Words encode(const char* startOfTextSpan,
+                       size_t lengthOfTextSpan,
+                       bool addEOS = true,
+                       bool inference = false) const = 0;
+
   virtual std::string decode(const Words& sentence,
                              bool ignoreEos = true) const = 0;
   virtual std::string surfaceForm(const Words& sentence) const = 0;

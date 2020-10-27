@@ -113,6 +113,13 @@ Words Vocab::encode(const std::string& line,
   return vImpl_->encode(line, addEOS, inference);
 }
 
+Words Vocab::encode(const char* startOfTextSpan,
+              size_t lengthOfTextSpan,
+              bool addEOS,
+              bool inference) const {
+  return vImpl_->encode(startOfTextSpan, lengthOfTextSpan, addEOS, inference);
+}
+
 // convert sequence of token ids to single line, can perform detokenization
 std::string Vocab::decode(const Words& sentence,
                     bool ignoreEOS) const {

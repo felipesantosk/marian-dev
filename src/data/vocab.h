@@ -50,6 +50,11 @@ public:
                bool addEOS = true,
                bool inference = false) const;
 
+  Words encode(const char* startOfTextSpan,
+               size_t lengthOfTextSpan,
+               bool addEOS = true,
+               bool inference = false) const;
+
   // convert sequence of token ids to single line, can perform detokenization
   std::string decode(const Words& sentence,
                      bool ignoreEOS = true) const;

@@ -206,7 +206,8 @@ public:
     return spm_->IdToPiece(id.toWordIndex());
   }
 
-  Words encode(const std::string& line, bool addEOS, bool inference) const override {
+  Words encode(char const* startOfTextSpan, size_t lengthOfTextSpan, bool addEOS, bool inference) const override {
+    sentencepiece::util::min_string_view line(startOfTextSpan, lengthOfTextSpan);
     std::vector<int> spmIds;
     if(inference || alpha_ == 0)
       spm_->Encode(line, &spmIds);
@@ -220,6 +221,10 @@ public:
     if(addEOS)
       words.push_back(getEosId());
     return words;
+  }
+
+  Words encode(const std::string& line, bool addEOS, bool inference) const override {
+    return encode(line.c_str(), line.size(), addEOS, inference);
   }
 
   std::string decode(const Words& sentence, bool /*ignoreEOS*/) const override {

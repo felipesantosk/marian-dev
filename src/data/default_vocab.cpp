@@ -57,6 +57,10 @@ public:
       return unkId_;
   }
 
+  Words encode(const char* startOfTextSpan, size_t lengthOfTextSpan, bool addEOS, bool inference) const override {
+    return encode(std::string(startOfTextSpan, lengthOfTextSpan), addEOS, inference);
+  }
+
   Words encode(const std::string& line, bool addEOS, bool /*inference*/) const override {
     auto lineTokens = utils::split(line, " ");
     return (*this)(lineTokens, addEOS);
