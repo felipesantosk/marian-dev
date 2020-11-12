@@ -22,6 +22,7 @@ cmake_cmd += -DUSE_STATIC_LIBS=on
 cmake_cmd += -DUSE_SENTENCEPIECE=on
 cmake_cmd += -DCOMPILE_CUDA=off
 cmake_cmd += -DUSE_DOXYGEN=off
+cmake_cmd += -DUSE_FBGEMM=off
 native_cmake_cmd = ${cmake_cmd}
 native_cmake_cmd += -DMKL=on
 native_cmake_cmd += -DCOMPILE_CPU=on

@@ -2,11 +2,15 @@
 include_directories(.)
 
 add_subdirectory(./yaml-cpp)
-add_subdirectory(./SQLiteCpp)
+if(NOT COMPILE_WASM)
+  add_subdirectory(./SQLiteCpp)
+endif()
 add_subdirectory(./pathie-cpp)
-add_subdirectory(./zlib)
-add_subdirectory(./faiss)
-include_directories(./faiss)
+if(NOT COMPILE_WASM)
+  add_subdirectory(./zlib)
+  add_subdirectory(./faiss)
+  include_directories(./faiss)
+endif()
 
 set(INTGEMM_DONT_BUILD_TESTS ON CACHE BOOL "Disable intgemm tests")
 add_subdirectory(./intgemm)
@@ -68,37 +72,43 @@ if(USE_SENTENCEPIECE)
   add_subdirectory(./sentencepiece)
   include_directories(./sentencepiece)
 
-  set_target_properties(spm_encode spm_decode spm_train spm_normalize spm_export_vocab
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  if(NOT COMPILE_WASM)
+    set_target_properties(spm_encode spm_decode spm_train spm_normalize spm_export_vocab
+      PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    foreach(t sentencepiece-static sentencepiece_train-static
-        spm_decode spm_encode spm_export_vocab spm_normalize spm_train)
-      set_property(TARGET ${t} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-tautological-compare -Wno-unused")
-      if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0)
-        set_property(TARGET ${t} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-range-loop-construct")
-      endif()
-      # get_property(SENTENCEPIECE_COMPILE_FLAGS TARGET ${t} PROPERTY COMPILE_FLAGS)
-      # message("-- SENTENCPIECE: compile flags for target ${t}: ${SENTENCEPIECE_COMPILE_FLAGS}")
-    endforeach(t)
-  endif()
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      foreach(t sentencepiece-static sentencepiece_train-static
+          spm_decode spm_encode spm_export_vocab spm_normalize spm_train)
+        set_property(TARGET ${t} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-tautological-compare -Wno-unused")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0)
+          set_property(TARGET ${t} APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-range-loop-construct")
+        endif()
+        # get_property(SENTENCEPIECE_COMPILE_FLAGS TARGET ${t} PROPERTY COMPILE_FLAGS)
+        # message("-- SENTENCPIECE: compile flags for target ${t}: ${SENTENCEPIECE_COMPILE_FLAGS}")
+      endforeach(t)
+    endif()
+  endif(NOT COMPILE WASM)
 
   if(USE_STATIC_LIBS)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ${_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
   endif()
 endif(USE_SENTENCEPIECE)
 
-include_directories(./SQLiteCpp/include)
-include_directories(./CLI)
+if(NOT COMPILE_WASM)
+  include_directories(./SQLiteCpp/include)
+  include_directories(./CLI)
+endif()
 include_directories(./pathie-cpp/include)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   #set_target_properties(SQLiteCpp PROPERTIES COMPILE_FLAGS
-  set_property(TARGET SQLiteCpp APPEND_STRING PROPERTY COMPILE_FLAGS
-    " -Wno-parentheses-equality -Wno-unused-value")
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0)
+  if(NOT COMPILE_WASM)
     set_property(TARGET SQLiteCpp APPEND_STRING PROPERTY COMPILE_FLAGS
-      " -Wno-implicit-int-float-conversion")
+      " -Wno-parentheses-equality -Wno-unused-value")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0)
+      set_property(TARGET SQLiteCpp APPEND_STRING PROPERTY COMPILE_FLAGS
+        " -Wno-implicit-int-float-conversion")
+    endif()
   endif()
   set_property(TARGET libyaml-cpp APPEND_STRING PROPERTY COMPILE_FLAGS
     " -fPIC -Wno-unused-value")
@@ -106,7 +116,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     " -fPIC -Wno-unused-value")
 endif()
 
-include_directories(./zlib)
+if(NOT COMPILE_WASM)
+  include_directories(./zlib)
+endif()
 
 include(ExternalProject)
 
