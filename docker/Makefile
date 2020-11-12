@@ -29,8 +29,6 @@ wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DMKL=off
 wasm_cmake_cmd += -DCOMPILE_CPU=off
 wasm_cmake_cmd += -DCOMPILE_WASM=on
-wasm_cmake_cmd += -DCMAKE_PREFIX_PATH=/root/protobuf-wasm-lib/dist
-wasm_cmake_cmd += -DProtobuf_SRC_ROOT_FOLDER=/root/protobuf-wasm-lib/protobuf
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
 make_cmd  = make
@@ -48,11 +46,18 @@ ${HOME}/.ccache:
 
 # Compile native version
 compile-native: ${HOME}/.ccache
-	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/build-native-docker && cd /repo/build-native-docker && (${native_cmake_cmd} /repo && ${make_cmd} || rm CMakeCache.txt)'
+	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/build-native-docker &&\
+cd /repo/build-native-docker &&\
+(${native_cmake_cmd} .. &&\
+${make_cmd} || rm CMakeCache.txt)'
 
-# Compile to WASM
+# Compile marian-decoder to WASM
 compile-wasm: ${HOME}/.ccache
-	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p /repo/build-wasm-docker && cd /repo/build-wasm-docker && (emcmake ${wasm_cmake_cmd} /repo && emmake ${make_cmd} || rm CMakeCache.txt)'
+	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p /repo/build-wasm-docker && \
+cd /repo/build-wasm-docker && \
+(emcmake ${wasm_cmake_cmd} .. && \
+(emmake ${make_cmd}) || \
+rm CMakeCache.txt)'
 
 # Start interactive shells for development / debugging purposes
 native-shell: INTERACTIVE_DOCKER_SESSION = -it

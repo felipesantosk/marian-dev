@@ -1,11 +1,11 @@
-FROM emscripten/emsdk
+FROM emscripten/emsdk:2.0.8
 
 # Install specific version of CMake
 WORKDIR /usr
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.2/cmake-3.17.2-Linux-x86_64.tar.gz -qO-\
     | tar xzf - --strip-components 1
 
-# Install Python and Java (optional, only needed for Closure Compiler minification)
+# Install Python and Java (needed for Closure Compiler minification)
 RUN apt-get update \
     && apt-get install -y \
     python3 \
@@ -30,11 +30,3 @@ RUN cp /usr/bin/protoc /root/protobuf-wasm-lib/dist/bin/protoc
 
 RUN apt-get --no-install-recommends -y install \
     libprotobuf-dev
-
-#ADD package.json .
-
-#RUN npm i
-
-#RUN cp -r /npm-packages/node_modules/protobuf-wasm-lib/dist/* /usr/local/
-
-#ENV CMAKE_PREFIX_PATH /usr/local/
