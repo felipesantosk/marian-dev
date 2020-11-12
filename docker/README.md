@@ -1,9 +1,14 @@
 ## Native (via Docker)
 
-Compile natively:
+Prepare docker image for Native compilation:
 
 ```bash
 make native-image
+```
+
+Compile natively (Note: currently failing):
+
+```bash
 make compile-native
 ```
 
@@ -15,10 +20,15 @@ make native-shell
 
 ## WASM
 
-Compile to wasm:
+Prepare docker image for WASM compilation:
 
 ```bash
 make wasm-image
+```
+
+Compile to wasm:
+
+```bash
 make compile-wasm
 ```
 
