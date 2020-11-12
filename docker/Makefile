@@ -60,6 +60,20 @@ cd /repo/build-wasm-docker && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
 
+# Compile sentencepiece to WASM
+sentencepiece_wasm_cmake_cmd = cmake --debug-output -Wno-dev
+sentencepiece_wasm_cmake_cmd += -DCOMPILE_WASM=on
+sentencepiece_wasm_cmake_cmd += -DSPM_ENABLE_SHARED=off
+sentencepiece_wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
+sentencepiece_wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
+
+compile-sentencepiece-wasm: ${HOME}/.ccache
+	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p /repo/src/3rd_party/sentencepiece/build-wasm-docker && \
+cd /repo/src/3rd_party/sentencepiece/build-wasm-docker && \
+(emcmake ${sentencepiece_wasm_cmake_cmd} .. && \
+(emmake ${make_cmd}) || \
+rm CMakeCache.txt)'
+
 # Start interactive shells for development / debugging purposes
 native-shell: INTERACTIVE_DOCKER_SESSION = -it
 native-shell:

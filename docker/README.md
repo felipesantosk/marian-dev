@@ -22,6 +22,12 @@ make wasm-image
 make compile-wasm
 ```
 
+Compile only sentencepiece to wasm:
+
+```bash
+make compile-sentencepiece-wasm
+```
+
 Enter a docker container shell for manually running commands:
 
 ```bash
