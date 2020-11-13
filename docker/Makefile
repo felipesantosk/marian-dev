@@ -36,14 +36,23 @@ wasm_cmake_cmd += -DCOMPILE_CPU=off
 wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
-make_cmd  = make
-make_cmd += -j4
+
+# we use MAKE_OPTIONS for default make options (but the can still be overriden
+# via
+#      make MAKE_OPTIONS=''
+# and EXTRA_MAKE_OPTIONS for additional make options, keeping the default options
+MAKE_OPTIONS = -j4
+make_cmd  = make ${MAKE_OPTIONS} ${EXTRA_MAKE_OPTIONS}
+
 
 # ... and running things on Docker
 docker_mounts  = ${PWD}/..:/repo
 docker_mounts += ${HOME}/.ccache:/.ccache
+docker_mounts += ${PWD}/../.git:${PWD}/.git
+docker_mounts += ${PWD}/../.gitmodules:${PWD}/.gitmodules
 run_on_docker  = docker run --rm
 run_on_docker += $(addprefix -v, ${docker_mounts})
+run_on_docker += --user $$(id -u):$$(id -g)
 run_on_docker += ${INTERACTIVE_DOCKER_SESSION}
 
 ${HOME}/.ccache:
