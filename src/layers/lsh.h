@@ -18,7 +18,6 @@ public:
   Expr apply(Expr query, Expr values, Expr bias);
 
 private:
-  Ptr<faiss::IndexLSH> index_;
   size_t indexHash_{0};
 
   int k_{100};

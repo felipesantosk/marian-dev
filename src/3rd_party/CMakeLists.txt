@@ -5,8 +5,8 @@ add_subdirectory(./yaml-cpp)
 add_subdirectory(./SQLiteCpp)
 add_subdirectory(./pathie-cpp)
 add_subdirectory(./zlib)
-add_subdirectory(./faiss)
-include_directories(./faiss)
+#add_subdirectory(./faiss)
+#include_directories(./faiss)
 
 
 if(COMPILE_CPU)

@@ -187,9 +187,9 @@ void ProdBatched(marian::Tensor C,
                  bool transB,
                  float beta,
                  float scalar) {
-  if (C->getBackend()->isLegacyBatchedGemm()) {
+  if (true) {
     ProdBatchedOld(C, allocator, A, B, transA, transB, beta, scalar);
-  }
+  }/*
 #if MKL_FOUND
   float alpha = scalar;
 
@@ -265,7 +265,7 @@ void ProdBatched(marian::Tensor C,
 #else
   C; A; B; transA; transB; beta; scalar;
   ABORT("You need to compile with MKL in order to use the CPU version");
-#endif
+#endif*/
 }
 
 void ProdWithBias(marian::Tensor C,

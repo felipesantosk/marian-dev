@@ -72,7 +72,7 @@ set(MARIAN_SOURCES
   layers/generic.cpp
   layers/loss.cpp
   layers/weight.cpp
-  layers/lsh.cpp
+  #layers/lsh.cpp
 
   rnn/cells.cpp
   rnn/attention.cpp
@@ -111,7 +111,7 @@ set(MARIAN_SOURCES
   $<TARGET_OBJECTS:SQLiteCpp>
   $<TARGET_OBJECTS:pathie-cpp>
   $<TARGET_OBJECTS:zlib>
-  $<TARGET_OBJECTS:faiss>
+  #$<TARGET_OBJECTS:faiss>
 )
 
 add_library(marian STATIC ${MARIAN_SOURCES})

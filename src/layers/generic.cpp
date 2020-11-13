@@ -221,9 +221,10 @@ namespace marian {
 
       // this option is only set in the decoder
       if(!lsh_ && options_->hasAndNotEmpty("output-approx-knn")) {
-        auto k     = opt<std::vector<int>>("output-approx-knn")[0];
-        auto nbits = opt<std::vector<int>>("output-approx-knn")[1];
-        lsh_ = New<LSH>(k, nbits);
+        ABORT("LSH is not supported in this version of marian.");
+        //auto k     = opt<std::vector<int>>("output-approx-knn")[0];
+        //auto nbits = opt<std::vector<int>>("output-approx-knn")[1];
+        //lsh_ = New<LSH>(k, nbits);
       }
 
       auto name = options_->get<std::string>("prefix");
@@ -275,9 +276,10 @@ namespace marian {
 
       auto affineOrLSH = [this, affineOrDot](Expr x, Expr W, Expr b, bool transA, bool transB) {
         if(lsh_) {
+          ABORT("LSH is not supported in this version of marian");
           ABORT_IF( transA, "Transposed query not supported for LSH");
           ABORT_IF(!transB, "Untransposed indexed matrix not supported for LSH");
-          return lsh_->apply(x, W, b); // knows how to deal with undefined bias
+          //return lsh_->apply(x, W, b); // knows how to deal with undefined bias
         } else {
           return affineOrDot(x, W, b, transA, transB);
         }
