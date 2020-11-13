@@ -18,6 +18,8 @@ wasm-image:
 cmake_cmd  = cmake --debug-output -Wno-dev
 cmake_cmd += -DBUILD_ARCH=native
 cmake_cmd += -DCMAKE_BUILD_TYPE=Release
+cmake_cmd += -DGIT_REVISION="f00f00f0 2020-11-13 09:51:29 +0200"
+cmake_cmd += -DPROJECT_VERSION_GIT_SHA="f00f00f0"
 cmake_cmd += -DUSE_STATIC_LIBS=on
 cmake_cmd += -DUSE_SENTENCEPIECE=on
 cmake_cmd += -DCOMPILE_CUDA=off

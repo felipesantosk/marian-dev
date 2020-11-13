@@ -145,6 +145,7 @@ endif(NOT COMPILE_WASM)
 target_compile_options(mariandecoder PUBLIC ${ALL_WARNINGS})
 
 # Generate git_revision.h to reflect current git revision information
+if(GIT_REVISION STREQUAL "")
 # [https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake]
 # Git updates .git/logs/HEAD file whenever you pull or commit something.
 
@@ -171,6 +172,14 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
   DEPENDS ${MARIAN_GIT_DIR}/logs/HEAD
   VERBATIM
 )
+else(GIT_REVISION STREQUAL "")
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND echo "#define GIT_REVISION \"${GIT_REVISION}\"" > ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
+  VERBATIM
+)
+endif(GIT_REVISION STREQUAL "")
+
 add_custom_target(marian_version DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h)
 if(NOT COMPILE_WASM)
   add_dependencies(marian marian_version) # marian must depend on it so that it gets created first
