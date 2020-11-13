@@ -8,8 +8,16 @@ add_subdirectory(./zlib)
 add_subdirectory(./faiss)
 include_directories(./faiss)
 
-set(INTGEMM_DONT_BUILD_TESTS ON CACHE BOOL "Disable intgemm tests")
-add_subdirectory(./intgemm)
+
+if(COMPILE_CPU)
+  set(DNNL_BUILD_EXAMPLES OFF CACHE BOOL "Disable dnnl examples")
+  set(DNNL_BUILD_TESTS OFF CACHE BOOL "Disable dnnl tests")
+  add_subdirectory(./oneDNN)
+  include_directories(./oneDNN/include)
+
+  set(INTGEMM_DONT_BUILD_TESTS ON CACHE BOOL "Disable intgemm tests")
+  add_subdirectory(./intgemm)
+endif(COMPILE_CPU)
 
 if(USE_FBGEMM)
   # @TODO: find out if this is somehow harmful. This is supppressing CMake warnings for CMAKE_SUPPRESS_DEVELOPER_WARNINGS

@@ -15,14 +15,6 @@
 #include <stdexcept>
 #include <string>
 
-#if MKL_FOUND
-#include <mkl.h>
-#else
-#if BLAS_FOUND
-#include <cblas.h>
-#endif
-#endif
-
 namespace marian {
 
 // TODO: Move this to CLIWrapper and allow to mark options as paths in the same place they are
