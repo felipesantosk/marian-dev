@@ -50,16 +50,20 @@ ${HOME}/.ccache:
 	mkdir -p $@
 
 # Compile native version
+compile-nativ: BUILD_DIR = /repo/src/3rd_party/sentencepiece/build-wasm-docker
 compile-native: ${HOME}/.ccache
-	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/build-native-docker &&\
-cd /repo/build-native-docker &&\
+	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
+mkdir -p ${BUILD_DIR} &&\
+cd ${BUILD_DIR} &&\
 (${native_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
 # Compile marian-decoder to WASM
+compile-wasm: BUILD_DIR = /repo/build-wasm-docker
 compile-wasm: ${HOME}/.ccache
-	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p /repo/build-wasm-docker && \
-cd /repo/build-wasm-docker && \
+	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
+mkdir -p ${BUILD_DIR} && \
+cd ${BUILD_DIR} && \
 (emcmake ${wasm_cmake_cmd} .. && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
@@ -71,9 +75,11 @@ sentencepiece_wasm_cmake_cmd += -DSPM_ENABLE_SHARED=off
 sentencepiece_wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
 sentencepiece_wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
 
+compile-sentencepiece-wasm: BUILD_DIR = /repo/src/3rd_party/sentencepiece/build-wasm-docker
 compile-sentencepiece-wasm: ${HOME}/.ccache
-	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p /repo/src/3rd_party/sentencepiece/build-wasm-docker && \
-cd /repo/src/3rd_party/sentencepiece/build-wasm-docker && \
+	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
+mkdir -p ${BUILD_DIR} && \
+cd ${BUILD_DIR} && \
 (emcmake ${sentencepiece_wasm_cmake_cmd} .. && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
