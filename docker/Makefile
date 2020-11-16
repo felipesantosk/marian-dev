@@ -34,8 +34,8 @@ wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DMKL=off
 wasm_cmake_cmd += -DCOMPILE_CPU=off
 wasm_cmake_cmd += -DCOMPILE_WASM=on
-wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
-wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
+wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
+wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
 make_cmd  = make
 make_cmd += VERBOSE=1
 make_cmd += -j4
@@ -73,8 +73,8 @@ rm CMakeCache.txt)'
 sentencepiece_wasm_cmake_cmd = cmake --debug-output -Wno-dev
 sentencepiece_wasm_cmake_cmd += -DCOMPILE_WASM=on
 sentencepiece_wasm_cmake_cmd += -DSPM_ENABLE_SHARED=off
-sentencepiece_wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/root/protobuf-wasm-lib/dist/include
-sentencepiece_wasm_cmake_cmd += -DProtobuf_LIBRARY=/root/protobuf-wasm-lib/dist/lib/libprotobuf.a
+sentencepiece_wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
+sentencepiece_wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
 
 compile-sentencepiece-wasm: BUILD_DIR = /repo/src/3rd_party/sentencepiece/build-wasm-docker
 compile-sentencepiece-wasm: ${HOME}/.ccache
