@@ -170,6 +170,8 @@ else(MSVC)
 
   if(COMPILE_WASM)
     set(INTRINSICS "${INTRINSICS} -msimd128")
+    # Setting USE_SSE2 definition to enable SSE2 specific code in "sse_mathfun.h" for wasm builds
+    add_definitions(-DUSE_SSE2=1)
   endif()
 
   if(USE_FBGEMM)
