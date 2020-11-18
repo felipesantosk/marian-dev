@@ -8,8 +8,6 @@ endif()
 add_subdirectory(./pathie-cpp)
 if(NOT COMPILE_WASM)
   add_subdirectory(./zlib)
-  add_subdirectory(./faiss)
-  include_directories(./faiss)
 endif()
 
 set(INTGEMM_DONT_BUILD_TESTS ON CACHE BOOL "Disable intgemm tests")

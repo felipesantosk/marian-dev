@@ -221,9 +221,7 @@ namespace marian {
 
       // this option is only set in the decoder
       if(!lsh_ && options_->hasAndNotEmpty("output-approx-knn")) {
-        auto k     = opt<std::vector<int>>("output-approx-knn")[0];
-        auto nbits = opt<std::vector<int>>("output-approx-knn")[1];
-        lsh_ = New<LSH>(k, nbits);
+        ABORT("LSH is not supported in this version of marian.");
       }
 
       auto name = options_->get<std::string>("prefix");
@@ -275,9 +273,9 @@ namespace marian {
 
       auto affineOrLSH = [this, affineOrDot](Expr x, Expr W, Expr b, bool transA, bool transB) {
         if(lsh_) {
+          ABORT("LSH is not supported in this version of marian");
           ABORT_IF( transA, "Transposed query not supported for LSH");
           ABORT_IF(!transB, "Untransposed indexed matrix not supported for LSH");
-          return lsh_->apply(x, W, b); // knows how to deal with undefined bias
         } else {
           return affineOrDot(x, W, b, transA, transB);
         }
@@ -412,7 +410,7 @@ namespace marian {
             factorLogits = affineOrLSH(input1, factorWt, factorB, false, /*transB=*/isLegacyUntransposedW ? false : true); // [B... x U] factor logits
           else
             factorLogits = affineOrDot(input1, factorWt, factorB, false, /*transB=*/isLegacyUntransposedW ? false : true); // [B... x U] factor logits
-          
+
           // optionally add lemma-dependent bias
           if (Plemma) { // [B... x U0]
             int lemmaVocabDim = Plemma->shape()[-1];

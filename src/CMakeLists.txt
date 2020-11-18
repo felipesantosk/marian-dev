@@ -47,7 +47,7 @@ set(MARIAN_SOURCES
 
   3rd_party/cnpy/cnpy.cpp
   3rd_party/ExceptionWithCallStack.cpp
-  
+
   3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
 
   3rd_party/phf/phf.cc
@@ -59,7 +59,7 @@ set(MARIAN_SOURCES
   tensors/cpu/prod.cpp
   tensors/cpu/topk.cpp
   tensors/cpu/tensor_operators.cpp
-  
+
   tensors/cpu/integer_common.cpp
   tensors/cpu/fbgemm/packed_gemm.cpp
 
@@ -76,7 +76,6 @@ set(MARIAN_SOURCES
   layers/generic.cpp
   layers/loss.cpp
   layers/weight.cpp
-  layers/lsh.cpp
 
   rnn/cells.cpp
   rnn/attention.cpp
@@ -114,7 +113,6 @@ set(MARIAN_SOURCES
   $<TARGET_OBJECTS:SQLiteCpp>
   $<TARGET_OBJECTS:pathie-cpp>
   $<TARGET_OBJECTS:zlib>
-  $<TARGET_OBJECTS:faiss>
 )
 
 set(MARIANDECODER_SOURCES

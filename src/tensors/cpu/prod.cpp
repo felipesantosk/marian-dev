@@ -195,9 +195,9 @@ void ProdBatched(marian::Tensor C,
                  bool transB,
                  float beta,
                  float scalar) {
-  if (C->getBackend()->isLegacyBatchedGemm()) {
+  if (true) {
     ProdBatchedOld(C, allocator, A, B, transA, transB, beta, scalar);
-  }
+  } /*
 #if MKL_FOUND
   float alpha = scalar;
 
@@ -253,27 +253,27 @@ void ProdBatched(marian::Tensor C,
     b_array[i] = B->data() + (i % batchB) * strideB;
     c_array[i] = C->data() + i * strideC;
   }
-  cblas_sgemm_batch (CblasRowMajor, 
-    &transa_arr[0], 
-    &transb_arr[0], 
-    &m_arr[0], 
-    &n_arr[0], 
+  cblas_sgemm_batch (CblasRowMajor,
+    &transa_arr[0],
+    &transb_arr[0],
+    &m_arr[0],
+    &n_arr[0],
     &k_arr[0],
-    &alpha_arr[0], 
-    &a_array[0], 
+    &alpha_arr[0],
+    &a_array[0],
     &lda_arr[0],
-    &b_array[0], 
-    &ldb_arr[0], 
-    &beta_arr[0], 
-    &c_array[0], 
+    &b_array[0],
+    &ldb_arr[0],
+    &beta_arr[0],
+    &c_array[0],
     &ldc_arr[0],
-    group_count, 
+    group_count,
     &group_size[0]);
 
 #else
   C; A; B; transA; transB; beta; scalar;
   ABORT("You need to compile with MKL in order to use the CPU version");
-#endif
+#endif */
 }
 
 void ProdWithBias(marian::Tensor C,
