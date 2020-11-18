@@ -8,7 +8,11 @@ endif ()
 project(marian CXX C)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(BUILD_ARCH native CACHE STRING "Compile for this CPU architecture.")
+if(NOT COMPILE_WASM)
+  # Setting BUILD_ARCH to native invokes CPU intrinsic detection logic below.
+  # Prevent invoking that logic for WASM builds and minimally use -msse4.1
+  set(BUILD_ARCH native CACHE STRING "Compile for this CPU architecture.")
+endif()
 set(GIT_REVISION "" CACHE STRING "Specify the Git revision manually (to build without a .git directory)")
 set(PROJECT_VERSION_GIT_SHA "" CACHE STRING "Specify the Git sha1 manually (to build without a .git directory)")
 

@@ -16,7 +16,6 @@ wasm-image:
 
 # Commands for compilation:
 cmake_cmd  = cmake --debug-output -Wno-dev
-cmake_cmd += -DBUILD_ARCH=native
 cmake_cmd += -DCMAKE_BUILD_TYPE=Release
 cmake_cmd += -DGIT_REVISION="f00f00f0 2020-11-13 09:51:29 +0200"
 cmake_cmd += -DPROJECT_VERSION_GIT_SHA="f00f00f0"
