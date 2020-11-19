@@ -243,7 +243,12 @@ endif()
 if(USE_SENTENCEPIECE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SENTENCEPIECE")
   LIST(APPEND CUDA_NVCC_FLAGS -DUSE_SENTENCEPIECE; )
-  set(EXT_LIBS ${EXT_LIBS} sentencepiece sentencepiece_train)
+  if (COMPILE_WASM)
+    # We don't need sentencepiece_train for wasm builds
+    set(EXT_LIBS ${EXT_LIBS} sentencepiece)
+  else()
+    set(EXT_LIBS ${EXT_LIBS} sentencepiece sentencepiece_train)
+  endif()
 endif()
 
 if(USE_ONNX)
