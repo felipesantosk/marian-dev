@@ -115,21 +115,101 @@ set(MARIAN_SOURCES
   $<TARGET_OBJECTS:zlib>
 )
 
+## MARIANDECODER_SOURCES are roughly all MARIAN_SOURCES except Training
 set(MARIANDECODER_SOURCES
+  common/aliases.cpp
+  common/fastopt.cpp
+  common/version.cpp
+  common/utils.cpp
+  common/logging.cpp
+  common/cli_helper.cpp
+  common/cli_wrapper.cpp
+  common/config.cpp
+  common/config_parser.cpp
+  common/config_validator.cpp
+  common/options.cpp
+  common/binary.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/common/build_info.cpp
+  common/io.cpp
+  common/filesystem.cpp
+  ###common/file_stream.cpp
+  common/file_utils.cpp
+  common/signal_handling.cpp
+  common/types.cpp
+
+  data/alignment.cpp
+  data/vocab.cpp
+  data/default_vocab.cpp
+  data/sentencepiece_vocab.cpp
+  data/factored_vocab.cpp
+  data/corpus_base.cpp
+  data/corpus.cpp
+  ###data/corpus_sqlite.cpp
+  data/corpus_nbest.cpp
+  data/text_input.cpp
+
+  3rd_party/cnpy/cnpy.cpp
+  ###3rd_party/ExceptionWithCallStack.cpp
+
+  3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
+
+  3rd_party/phf/phf.cc
+
+  tensors/backend.cpp
+  tensors/rand.cpp
+  tensors/tensor.cpp
+  tensors/cpu/device.cpp
+  tensors/cpu/prod.cpp
+  tensors/cpu/topk.cpp
+  tensors/cpu/tensor_operators.cpp
+
+  tensors/cpu/integer_common.cpp
+  ###tensors/cpu/fbgemm/packed_gemm.cpp
+
   graph/expression_graph.cpp
   graph/expression_operators.cpp
   graph/node.cpp
   graph/node_operators.cpp
   graph/node_initializers.cpp
 
+  onnx/expression_graph_onnx_exporter.cpp
+  onnx/expression_graph_onnx_serialization.cpp
+
   layers/convolution.cpp
   layers/generic.cpp
   layers/loss.cpp
   layers/weight.cpp
-  layers/lsh.cpp
+
+  rnn/cells.cpp
+  rnn/attention.cpp
+
+  optimizers/clippers.cpp
+  optimizers/optimizers.cpp
+
+  models/model_factory.cpp
+  models/encoder_decoder.cpp
+  models/transformer_stub.cpp
+
+  rescorer/score_collector.cpp
+  embedder/vector_collector.cpp
 
   translator/beam_search.cpp
+  translator/history.cpp
+  translator/output_collector.cpp
+  translator/output_printer.cpp
+  translator/nth_element.cpp
+  translator/helpers.cpp
   translator/scorers.cpp
+
+  ### Probably these files are not required for marian-decoder
+  #microsoft/quicksand.cpp
+  #microsoft/cosmos.cpp
+
+  $<TARGET_OBJECTS:libyaml-cpp>
+  ### Probably these files are not required for marian-decoder
+  #$<TARGET_OBJECTS:SQLiteCpp>
+  #$<TARGET_OBJECTS:pathie-cpp>
+  #$<TARGET_OBJECTS:zlib>
 )
 
 if(NOT COMPILE_WASM)
