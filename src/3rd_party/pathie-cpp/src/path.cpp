@@ -935,6 +935,9 @@ Path Path::exe()
 
   std::string str = utf16_to_utf8(buf);
   return Path(str);
+#elif defined(__EMSCRIPTEN__)
+  Pathie::Path path("/");
+  return path;
 #else
 #error Unsupported platform.
 #endif
