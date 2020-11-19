@@ -49,7 +49,7 @@ ${HOME}/.ccache:
 	mkdir -p $@
 
 # Compile native version
-compile-nativ: BUILD_DIR = /repo/src/3rd_party/sentencepiece/build-wasm-docker
+compile-native: BUILD_DIR = /repo/build-native-docker
 compile-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
 mkdir -p ${BUILD_DIR} &&\
