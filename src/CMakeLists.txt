@@ -238,6 +238,23 @@ if(CUDA_FOUND)
   endif(GENERATE_MARIAN_INSTALL_TARGETS)
 endif(CUDA_FOUND)
 
+# For WASM, we want to build marian-decoder executable as well for profiling (for now)
+if (COMPILE_WASM)
+  add_executable(marian_decoder command/marian_decoder.cpp)
+  set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
+  target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
+
+  set(EXECUTABLES marian_decoder)
+
+  foreach(exec ${EXECUTABLES})
+    target_link_libraries(${exec} mariandecoder)
+    if(CUDA_FOUND)
+      target_link_libraries(${exec} marian_cuda)
+    endif(CUDA_FOUND)
+    set_target_properties(${exec} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  endforeach(exec)
+endif(COMPILE_WASM)
+
 # If this option is ON, only build the Marian library. This is useful if this project is included
 # as a sub-project of another build system that is only interested in the Marian output library.
 option(COMPILE_LIBRARY_ONLY "Build only the Marian library and exclude all executables." OFF)
