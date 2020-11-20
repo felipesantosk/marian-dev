@@ -176,6 +176,7 @@ public:
       << " --input_sentence_size=" << seenLines
       << " " << options_->get<std::string>("sentencepiece-options"); // these are SentencePiece command line options
 
+    #ifndef __EMSCRIPTEN__
     // Train the SentencePiece model
     const auto status = sentencepiece::SentencePieceTrainer::Train(command.str());
     ABORT_IF(!status.ok(),
@@ -191,6 +192,7 @@ public:
     ABORT_IF(rename((vocabPath + ".model").c_str(), vocabPath.c_str()) != 0,
              "Could not rename {} to {}",
              vocabPath + ".model", vocabPath);
+    #endif
   }
 
   void createFake() override {
