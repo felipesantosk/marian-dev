@@ -4,11 +4,9 @@ include_directories(.)
 include_directories(3rd_party)
 if(NOT COMPILE_WASM)
   include_directories(3rd_party/SQLiteCpp/include)
-endif()
-include_directories(3rd_party/sentencepiece)
-if(NOT COMPILE_WASM)
   include_directories(3rd_party/fbgemm/include)
 endif()
+include_directories(3rd_party/sentencepiece)
 include_directories(3rd_party/intgemm)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rd_party/intgemm)
 include_directories(${CMAKE_BINARY_DIR}/local/include)
@@ -206,21 +204,23 @@ set(MARIANDECODER_SOURCES
   #microsoft/cosmos.cpp
 
   $<TARGET_OBJECTS:libyaml-cpp>
+  $<TARGET_OBJECTS:pathie-cpp>
   ### Probably these files are not required for marian-decoder
   #$<TARGET_OBJECTS:SQLiteCpp>
-  $<TARGET_OBJECTS:pathie-cpp>
   #$<TARGET_OBJECTS:zlib>
 )
 
 if(NOT COMPILE_WASM)
   add_library(marian STATIC ${MARIAN_SOURCES})
+else()
+  add_library(mariandecoder STATIC ${MARIANDECODER_SOURCES})
 endif(NOT COMPILE_WASM)
-add_library(mariandecoder STATIC ${MARIANDECODER_SOURCES})
 
 if(NOT COMPILE_WASM)
   target_compile_options(marian PUBLIC ${ALL_WARNINGS})
+else()
+  target_compile_options(mariandecoder PUBLIC ${ALL_WARNINGS})
 endif(NOT COMPILE_WASM)
-target_compile_options(mariandecoder PUBLIC ${ALL_WARNINGS})
 
 # Generate git_revision.h to reflect current git revision information
 if(GIT_REVISION STREQUAL "")
@@ -261,13 +261,13 @@ endif(GIT_REVISION STREQUAL "")
 add_custom_target(marian_version DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h)
 if(NOT COMPILE_WASM)
   add_dependencies(marian marian_version) # marian must depend on it so that it gets created first
-endif(NOT COMPILE_WASM)
-add_dependencies(mariandecoder marian_version) # mariandecoder must depend on it so that it gets created first
-# make sure all local dependencies are installed first before this is built
-if(NOT COMPILE_WASM)
+  # make sure all local dependencies are installed first before this is built
   add_dependencies(marian 3rd_party_installs)
+else()
+  add_dependencies(mariandecoder marian_version) # mariandecoder must depend on it so that it gets created first
+  # make sure all local dependencies are installed first before this is built
+  add_dependencies(mariandecoder 3rd_party_installs)
 endif(NOT COMPILE_WASM)
-add_dependencies(mariandecoder 3rd_party_installs)
 
 if(APPLE) # This is a dependency of pathie but I can't seem to link it into that CMakeLists because we're not compiling it as a library.
    set(EXT_LIBS ${EXT_LIBS} iconv)
@@ -276,15 +276,18 @@ endif()
 # Add external libs to the public interface of the library
 if(NOT COMPILE_WASM)
   target_link_libraries(marian ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+else()
+  target_link_libraries(mariandecoder ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif(NOT COMPILE_WASM)
-target_link_libraries(mariandecoder ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 if(NOT COMPILE_WASM)
   set_target_properties(marian PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
   set_target_properties(marian PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+else()
+  set_target_properties(mariandecoder PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  set_target_properties(mariandecoder PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 endif(NOT COMPILE_WASM)
-set_target_properties(mariandecoder PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-set_target_properties(mariandecoder PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
 
 if(CUDA_FOUND)
   cuda_add_library(marian_cuda
@@ -323,7 +326,6 @@ if (COMPILE_WASM)
   add_executable(marian_decoder command/marian_decoder.cpp)
   set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
   target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
-
   set(EXECUTABLES marian_decoder)
 
   foreach(exec ${EXECUTABLES})
