@@ -326,6 +326,7 @@ if (COMPILE_WASM)
   add_executable(marian_decoder command/marian_decoder.cpp)
   set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
   target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
+  set(CMAKE_EXECUTABLE_SUFFIX ".html")
   set(EXECUTABLES marian_decoder)
 
   foreach(exec ${EXECUTABLES})
