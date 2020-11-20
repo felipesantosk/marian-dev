@@ -132,7 +132,7 @@ set(MARIANDECODER_SOURCES
   ${CMAKE_CURRENT_BINARY_DIR}/common/build_info.cpp
   common/io.cpp
   common/filesystem.cpp
-  ###common/file_stream.cpp
+  common/file_stream.cpp
   common/file_utils.cpp
   common/signal_handling.cpp
   common/types.cpp
@@ -208,7 +208,7 @@ set(MARIANDECODER_SOURCES
   $<TARGET_OBJECTS:libyaml-cpp>
   ### Probably these files are not required for marian-decoder
   #$<TARGET_OBJECTS:SQLiteCpp>
-  #$<TARGET_OBJECTS:pathie-cpp>
+  $<TARGET_OBJECTS:pathie-cpp>
   #$<TARGET_OBJECTS:zlib>
 )
 
