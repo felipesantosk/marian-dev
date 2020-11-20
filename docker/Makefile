@@ -92,3 +92,9 @@ native-shell:
 wasm-shell: INTERACTIVE_DOCKER_SESSION = -it
 wasm-shell:
 	${run_on_docker} ${WASM_IMAGE} bash
+
+run-test:
+	cp ../build-wasm-docker/marian-decoder.js testpage/ && \
+cp ../build-wasm-docker/marian-decoder.wasm testpage/ && \
+cp ../build-wasm-docker/marian-decoder.worker.js testpage/ && \
+python3 -m http.server -d testpage/
