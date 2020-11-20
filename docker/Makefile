@@ -96,4 +96,5 @@ run-test:
 	cp ../build-wasm-docker/marian-decoder.js testpage/ && \
 cp ../build-wasm-docker/marian-decoder.wasm testpage/ && \
 cp ../build-wasm-docker/marian-decoder.worker.js testpage/ && \
+cp ../build-wasm-docker/marian-decoder.html testpage/ && \
 python3 -m http.server -d testpage/
