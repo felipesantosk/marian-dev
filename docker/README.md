@@ -57,6 +57,12 @@ Note: To run in Chrome, launch Chrome with `  --js-flags="--experimental-wasm-si
 
 ### Debugging
 
+Remove the marian-decoder WASM build dir, forcing the next compilation attempt to start from scratch:
+
+```bash
+make clean-wasm
+```
+
 Compile only sentencepiece to wasm:
 
 ```bash
