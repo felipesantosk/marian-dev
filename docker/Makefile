@@ -67,6 +67,10 @@ cd ${BUILD_DIR} && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
 
+run-wasm: BUILD_DIR = /repo/build-wasm-docker
+run-wasm:
+	${run_on_docker} -p 8000:8000 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8000 ${BUILD_DIR}'
+
 # Compile sentencepiece to WASM
 sentencepiece_wasm_cmake_cmd = cmake --debug-output -Wno-dev
 sentencepiece_wasm_cmake_cmd += -DCOMPILE_WASM=on
@@ -91,10 +95,3 @@ native-shell:
 wasm-shell: INTERACTIVE_DOCKER_SESSION = -it
 wasm-shell:
 	${run_on_docker} ${WASM_IMAGE} bash
-
-run-test:
-	cp ../build-wasm-docker/marian-decoder.js testpage/ && \
-cp ../build-wasm-docker/marian-decoder.wasm testpage/ && \
-cp ../build-wasm-docker/marian-decoder.worker.js testpage/ && \
-cp ../build-wasm-docker/marian-decoder.html testpage/ && \
-python3 -m http.server -d testpage/

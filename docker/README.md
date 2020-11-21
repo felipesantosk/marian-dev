@@ -32,6 +32,12 @@ Compile to wasm:
 make compile-wasm
 ```
 
+Run the wasm-compiled code:
+
+```bash
+make run-wasm
+```
+
 Compile only sentencepiece to wasm:
 
 ```bash
