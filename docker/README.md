@@ -38,6 +38,8 @@ Run the wasm-compiled code:
 make run-wasm
 ```
 
+### Debugging
+
 Compile only sentencepiece to wasm:
 
 ```bash

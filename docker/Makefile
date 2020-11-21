@@ -67,6 +67,8 @@ cd ${BUILD_DIR} && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
 
+
+# Run WASM-compiled marian-decoder
 run-wasm: BUILD_DIR = /repo/build-wasm-docker
 run-wasm:
 	${run_on_docker} -p 8000:8000 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8000 ${BUILD_DIR}'
