@@ -57,16 +57,25 @@ cd ${BUILD_DIR} &&\
 (${native_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
+# Remove the marian-decoder WASM build dir, forcing a clean compilation attempt
+clean-wasm: BUILD_DIR = /repo/build-wasm-docker
+clean-wasm: ${HOME}/.ccache
+	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
+
 # Compile marian-decoder to WASM
 compile-wasm: BUILD_DIR = /repo/build-wasm-docker
 compile-wasm: ${HOME}/.ccache
-	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
-mkdir -p ${BUILD_DIR} && \
+	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} && \
 cd ${BUILD_DIR} && \
 (emcmake ${wasm_cmake_cmd} .. && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
 
+# Prepare files to be used with WASM-compiled marian-decoder
+package-files-wasm: BUILD_DIR = /repo/build-wasm-docker
+package-files-wasm: MODELS_DIR = /repo/models
+package-files-wasm:
+	${run_on_docker} ${WASM_IMAGE} bash -c 'python3 /emsdk/upstream/emscripten/tools/file_packager.py ${BUILD_DIR}/model-files.data --preload ${MODELS_DIR} --js-output=${BUILD_DIR}/model-files.js'
 
 # Run WASM-compiled marian-decoder
 run-wasm: BUILD_DIR = /repo/build-wasm-docker

@@ -201,7 +201,11 @@ else(MSVC)
   endif(CMAKE_COMPILER_IS_GNUCC)
 
   if(COMPILE_WASM)
-    set(EMCC_FLAGS "")
+    set(EMCC_FLAGS "-O2 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0")
+    # necessary to be able to use files downloaded in JS (https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support)
+    set(EMCC_FLAGS "${EMCC_FLAGS} -s FORCE_FILESYSTEM=1")
+    # use our customizations to the generated emscripted html and js resources
+    set(EMCC_FLAGS "${EMCC_FLAGS} --pre-js /repo/wasm/pre-module.js --post-js /repo/wasm/post-module.js --shell-file /repo/wasm/custom_shell.html")
   endif(COMPILE_WASM)
 
   set(CMAKE_CXX_FLAGS                 "-std=c++11 -pthread ${CMAKE_GCC_FLAGS} -fPIC ${DISABLE_GLOBALLY} -march=${BUILD_ARCH} ${INTRINSICS}")
