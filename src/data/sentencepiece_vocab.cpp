@@ -176,7 +176,7 @@ public:
       << " --input_sentence_size=" << seenLines
       << " " << options_->get<std::string>("sentencepiece-options"); // these are SentencePiece command line options
 
-    #ifndef __EMSCRIPTEN__
+    #ifndef COMPILE_DECODER_ONLY
     // Train the SentencePiece model
     const auto status = sentencepiece::SentencePieceTrainer::Train(command.str());
     ABORT_IF(!status.ok(),

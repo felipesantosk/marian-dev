@@ -5,7 +5,7 @@
 #ifndef LIBCNPY_H_
 #define LIBCNPY_H_
 
-#if !defined(__EMSCRIPTEN__)
+#if !defined(COMPILE_DECODER_ONLY)
 #include "3rd_party/zlib/zlib.h"
 #endif
 

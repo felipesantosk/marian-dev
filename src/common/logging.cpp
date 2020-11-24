@@ -145,7 +145,7 @@ void switchtoMultinodeLogging(std::string nodeIdStr) {
 
 namespace marian {
   std::string noinline getCallStack(size_t skipLevels) {
-    #ifndef __EMSCRIPTEN__
+    #ifndef COMPILE_DECODER_ONLY
     return ::Microsoft::MSR::CNTK::DebugUtil::GetCallStack(skipLevels + 2, /*makeFunctionNamesStandOut=*/true);
     #endif
     return "not supported";
