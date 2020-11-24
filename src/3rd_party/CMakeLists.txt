@@ -2,11 +2,11 @@
 include_directories(.)
 
 add_subdirectory(./yaml-cpp)
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   add_subdirectory(./SQLiteCpp)
 endif()
 add_subdirectory(./pathie-cpp)
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   add_subdirectory(./zlib)
   add_subdirectory(./faiss)
   include_directories(./faiss)
@@ -78,7 +78,7 @@ if(USE_SENTENCEPIECE)
   add_subdirectory(./sentencepiece)
   include_directories(./sentencepiece)
 
-  if(NOT COMPILE_WASM)
+  if(NOT COMPILE_DECODER_ONLY)
   set_target_properties(spm_encode spm_decode spm_train spm_normalize spm_export_vocab
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
@@ -100,7 +100,7 @@ if(USE_SENTENCEPIECE)
       # message("-- SENTENCPIECE: compile flags for target ${t}: ${SENTENCEPIECE_COMPILE_FLAGS}")
     endforeach(t)
   endif()
-  endif(NOT COMPILE_WASM)
+  endif(NOT COMPILE_DECODER_ONLY)
 
   if(USE_STATIC_LIBS)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ${_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -119,7 +119,7 @@ if(USE_SENTENCEPIECE)
   endif(GENERATE_MARIAN_INSTALL_TARGETS)
 endif(USE_SENTENCEPIECE)
 
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   include_directories(./SQLiteCpp/include)
   include_directories(./CLI)
 endif()
@@ -127,21 +127,21 @@ include_directories(./pathie-cpp/include)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   #set_target_properties(SQLiteCpp PROPERTIES COMPILE_FLAGS
-  if(NOT COMPILE_WASM)
+  if(NOT COMPILE_DECODER_ONLY)
   set_property(TARGET SQLiteCpp APPEND_STRING PROPERTY COMPILE_FLAGS
     " -Wno-parentheses-equality -Wno-unused-value")
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0)
     set_property(TARGET SQLiteCpp APPEND_STRING PROPERTY COMPILE_FLAGS
       " -Wno-implicit-int-float-conversion")
   endif()
-  endif(NOT COMPILE_WASM)
+  endif(NOT COMPILE_DECODER_ONLY)
   set_property(TARGET libyaml-cpp APPEND_STRING PROPERTY COMPILE_FLAGS
     " -fPIC -Wno-unused-value")
   set_property(TARGET pathie-cpp APPEND_STRING PROPERTY COMPILE_FLAGS
     " -fPIC -Wno-unused-value")
 endif()
 
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   include_directories(./zlib)
 endif()
 

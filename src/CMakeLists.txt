@@ -2,7 +2,7 @@ add_subdirectory(3rd_party)
 
 include_directories(.)
 include_directories(3rd_party)
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   include_directories(3rd_party/SQLiteCpp/include)
   include_directories(3rd_party/fbgemm/include)
 endif()
@@ -210,17 +210,17 @@ set(MARIANDECODER_SOURCES
   #$<TARGET_OBJECTS:zlib>
 )
 
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   add_library(marian STATIC ${MARIAN_SOURCES})
 else()
   add_library(mariandecoder STATIC ${MARIANDECODER_SOURCES})
-endif(NOT COMPILE_WASM)
+endif(NOT COMPILE_DECODER_ONLY)
 
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   target_compile_options(marian PUBLIC ${ALL_WARNINGS})
 else()
   target_compile_options(mariandecoder PUBLIC ${ALL_WARNINGS})
-endif(NOT COMPILE_WASM)
+endif(NOT COMPILE_DECODER_ONLY)
 
 # Generate git_revision.h to reflect current git revision information
 if(GIT_REVISION STREQUAL "")
@@ -259,7 +259,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
 endif(GIT_REVISION STREQUAL "")
 
 add_custom_target(marian_version DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h)
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   add_dependencies(marian marian_version) # marian must depend on it so that it gets created first
   # make sure all local dependencies are installed first before this is built
   add_dependencies(marian 3rd_party_installs)
@@ -267,26 +267,26 @@ else()
   add_dependencies(mariandecoder marian_version) # mariandecoder must depend on it so that it gets created first
   # make sure all local dependencies are installed first before this is built
   add_dependencies(mariandecoder 3rd_party_installs)
-endif(NOT COMPILE_WASM)
+endif(NOT COMPILE_DECODER_ONLY)
 
 if(APPLE) # This is a dependency of pathie but I can't seem to link it into that CMakeLists because we're not compiling it as a library.
    set(EXT_LIBS ${EXT_LIBS} iconv)
 endif()
 
 # Add external libs to the public interface of the library
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   target_link_libraries(marian ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 else()
   target_link_libraries(mariandecoder ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-endif(NOT COMPILE_WASM)
+endif(NOT COMPILE_DECODER_ONLY)
 
-if(NOT COMPILE_WASM)
+if(NOT COMPILE_DECODER_ONLY)
   set_target_properties(marian PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
   set_target_properties(marian PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
   set_target_properties(mariandecoder PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
   set_target_properties(mariandecoder PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-endif(NOT COMPILE_WASM)
+endif(NOT COMPILE_DECODER_ONLY)
 
 
 if(CUDA_FOUND)
@@ -321,35 +321,27 @@ if(CUDA_FOUND)
   endif(GENERATE_MARIAN_INSTALL_TARGETS)
 endif(CUDA_FOUND)
 
-# For WASM, we want to build marian-decoder executable as well for profiling (for now)
-if (COMPILE_WASM)
-  add_executable(marian_decoder command/marian_decoder.cpp)
-  set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
-  target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
-  set(CMAKE_EXECUTABLE_SUFFIX ".html")
-  set(EXECUTABLES marian_decoder)
-
-  foreach(exec ${EXECUTABLES})
-    target_link_libraries(${exec} mariandecoder)
-    if(CUDA_FOUND)
-      target_link_libraries(${exec} marian_cuda)
-    endif(CUDA_FOUND)
-    set_target_properties(${exec} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-  endforeach(exec)
-endif(COMPILE_WASM)
-
 # If this option is ON, only build the Marian library. This is useful if this project is included
 # as a sub-project of another build system that is only interested in the Marian output library.
 option(COMPILE_LIBRARY_ONLY "Build only the Marian library and exclude all executables." OFF)
 if (NOT COMPILE_LIBRARY_ONLY)
+
+  if(NOT COMPILE_DECODER_ONLY)
   add_executable(marian_train command/marian_main.cpp)
   set_target_properties(marian_train PROPERTIES OUTPUT_NAME marian)
   target_compile_options(marian_train PRIVATE ${ALL_WARNINGS})
+  endif(NOT COMPILE_DECODER_ONLY)
 
   add_executable(marian_decoder command/marian_decoder.cpp)
   set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
   target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
+  if(COMPILE_WASM)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+  endif(COMPILE_WASM)
 
+  if (COMPILE_DECODER_ONLY)
+  set(EXECUTABLES marian_decoder)
+  else(COMPILE_DECODER_ONLY)
   add_executable(marian_scorer command/marian_scorer.cpp)
   set_target_properties(marian_scorer PROPERTIES OUTPUT_NAME marian-scorer)
   target_compile_options(marian_scorer PRIVATE ${ALL_WARNINGS})
@@ -363,7 +355,9 @@ if (NOT COMPILE_LIBRARY_ONLY)
   target_compile_options(marian_conv PRIVATE ${ALL_WARNINGS})
 
   set(EXECUTABLES ${EXECUTABLES} marian_train marian_decoder marian_scorer marian_vocab marian_conv)
+  endif(COMPILE_DECODER_ONLY)
 
+  if(NOT COMPILE_DECODER_ONLY)
   # marian.zip and marian.tgz
   # This combines marian, marian_decoder in a single ZIP or TAR file for
   # execution in MSFT internal tools FLO and Philly.
@@ -393,6 +387,7 @@ if (NOT COMPILE_LIBRARY_ONLY)
     add_custom_target(marian_tgz DEPENDS "${CMAKE_BINARY_DIR}/marian.tgz")
     add_custom_target(philly DEPENDS marian_tgz marian_zip)
   endif(USE_STATIC_LIBS)
+  endif(NOT COMPILE_DECODER_ONLY)
 
   if(COMPILE_SERVER)
     add_executable(marian_server command/marian_server.cpp)
@@ -408,7 +403,11 @@ if (NOT COMPILE_LIBRARY_ONLY)
   endif(COMPILE_SERVER)
 
   foreach(exec ${EXECUTABLES})
-    target_link_libraries(${exec} marian)
+    if(COMPILE_DECODER_ONLY)
+      target_link_libraries(${exec} mariandecoder)
+    else(COMPILE_DECODER_ONLY)
+      target_link_libraries(${exec} marian)
+    endif(COMPILE_DECODER_ONLY)
     if(CUDA_FOUND)
       target_link_libraries(${exec} marian_cuda)
     endif(CUDA_FOUND)

@@ -6,16 +6,29 @@ Prepare docker image for Native compilation:
 make native-image
 ```
 
-Compile natively (Note: currently failing):
+Compile natively:
 
 ```bash
 make compile-native
+```
+
+Compile natively, marian-decoder only:
+
+```bash
+make compile-decoder-only-native
 ```
 
 Enter a docker container shell for manually running commands:
 
 ```bash
 make native-shell
+```
+
+Run the native-compiled code by entering a docker container shell above and manually running commands, eg:
+
+```bash
+cd /repo/build-native-docker # OR: cd /repo/build-native-decoder-only-docker
+echo "hola mundo" | ./marian-decoder -m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm --cpu-threads 1
 ```
 
 ## WASM

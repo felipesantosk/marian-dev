@@ -24,15 +24,18 @@ cmake_cmd += -DUSE_SENTENCEPIECE=on
 cmake_cmd += -DCOMPILE_CUDA=off
 cmake_cmd += -DUSE_DOXYGEN=off
 cmake_cmd += -DUSE_FBGEMM=off
-cmake_cmd += -DCOMPILE_LIBRARY_ONLY=on
+cmake_cmd += -DCOMPILE_LIBRARY_ONLY=off
 native_cmake_cmd = ${cmake_cmd}
 native_cmake_cmd += -DMKL=on
 native_cmake_cmd += -DCOMPILE_CPU=on
 native_cmake_cmd += -DCOMPILE_WASM=off
+native_decoder_only_cmake_cmd = ${native_cmake_cmd}
+native_decoder_only_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DMKL=off
 wasm_cmake_cmd += -DCOMPILE_CPU=off
 wasm_cmake_cmd += -DCOMPILE_WASM=on
+wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
 make_cmd  = make
@@ -55,6 +58,15 @@ compile-native: ${HOME}/.ccache
 mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
 (${native_cmake_cmd} .. &&\
+${make_cmd} || rm CMakeCache.txt)'
+
+# Compile native version of marian-decoder only
+compile-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
+compile-decoder-only-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
+mkdir -p ${BUILD_DIR} &&\
+cd ${BUILD_DIR} &&\
+(${native_decoder_only_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
 # Remove the marian-decoder WASM build dir, forcing a clean compilation attempt
