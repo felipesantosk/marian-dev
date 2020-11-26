@@ -207,9 +207,7 @@ set(MARIANDECODER_SOURCES
   $<TARGET_OBJECTS:pathie-cpp>
   ### Probably these files are not required for marian-decoder
   #$<TARGET_OBJECTS:SQLiteCpp>
-  if(NOT COMPILE_WASM)
-    $<TARGET_OBJECTS:zlib>
-  endif()
+  #$<TARGET_OBJECTS:zlib>
 )
 
 if(NOT COMPILE_DECODER_ONLY)
