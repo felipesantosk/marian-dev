@@ -8,11 +8,6 @@ endif ()
 project(marian CXX C)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if(NOT COMPILE_WASM)
-  # Setting BUILD_ARCH to native invokes CPU intrinsic detection logic below.
-  # Prevent invoking that logic for WASM builds and minimally use -msse4.1
-  set(BUILD_ARCH native CACHE STRING "Compile for this CPU architecture.")
-endif()
 set(GIT_REVISION "" CACHE STRING "Specify the Git revision manually (to build without a .git directory)")
 set(PROJECT_VERSION_GIT_SHA "" CACHE STRING "Specify the Git sha1 manually (to build without a .git directory)")
 
@@ -34,6 +29,12 @@ option(USE_NCCL "Use NCCL library" ON)
 option(USE_SENTENCEPIECE "Download and compile SentencePiece" OFF)
 option(USE_STATIC_LIBS "Link statically against non-system libs" OFF)
 option(GENERATE_MARIAN_INSTALL_TARGETS "Generate Marian install targets (requires CMake 3.12+)" OFF)
+
+if(NOT COMPILE_WASM)
+  # Setting BUILD_ARCH to native invokes CPU intrinsic detection logic below.
+  # Prevent invoking that logic for WASM builds and minimally use -msse4.1
+  set(BUILD_ARCH native CACHE STRING "Compile for this CPU architecture.")
+endif()
 
 # fbgemm and sentencepiece are both defined with "non-local" installation targets (the source projects don't define them,
 # so we define them in src\3rd_party\CMakeLists.txt), but that isn't supported until CMake 3.12. Prior to CMake 3.12,
