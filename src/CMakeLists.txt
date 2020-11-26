@@ -212,13 +212,9 @@ set(MARIANDECODER_SOURCES
 
 if(NOT COMPILE_DECODER_ONLY)
   add_library(marian STATIC ${MARIAN_SOURCES})
-else()
-  add_library(mariandecoder STATIC ${MARIANDECODER_SOURCES})
-endif(NOT COMPILE_DECODER_ONLY)
-
-if(NOT COMPILE_DECODER_ONLY)
   target_compile_options(marian PUBLIC ${ALL_WARNINGS})
 else()
+  add_library(mariandecoder STATIC ${MARIANDECODER_SOURCES})
   target_compile_options(mariandecoder PUBLIC ${ALL_WARNINGS})
 endif(NOT COMPILE_DECODER_ONLY)
 
@@ -259,35 +255,28 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
 endif(GIT_REVISION STREQUAL "")
 
 add_custom_target(marian_version DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h)
+
 if(NOT COMPILE_DECODER_ONLY)
   add_dependencies(marian marian_version) # marian must depend on it so that it gets created first
   # make sure all local dependencies are installed first before this is built
   add_dependencies(marian 3rd_party_installs)
+  # Add external libs to the public interface of the library
+  target_link_libraries(marian ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+  set_target_properties(marian PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  set_target_properties(marian PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
   add_dependencies(mariandecoder marian_version) # mariandecoder must depend on it so that it gets created first
   # make sure all local dependencies are installed first before this is built
   add_dependencies(mariandecoder 3rd_party_installs)
+  # Add external libs to the public interface of the library
+  target_link_libraries(mariandecoder ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+  set_target_properties(mariandecoder PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+  set_target_properties(mariandecoder PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 endif(NOT COMPILE_DECODER_ONLY)
 
 if(APPLE) # This is a dependency of pathie but I can't seem to link it into that CMakeLists because we're not compiling it as a library.
    set(EXT_LIBS ${EXT_LIBS} iconv)
 endif()
-
-# Add external libs to the public interface of the library
-if(NOT COMPILE_DECODER_ONLY)
-  target_link_libraries(marian ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-else()
-  target_link_libraries(mariandecoder ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-endif(NOT COMPILE_DECODER_ONLY)
-
-if(NOT COMPILE_DECODER_ONLY)
-  set_target_properties(marian PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-  set_target_properties(marian PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-else()
-  set_target_properties(mariandecoder PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-  set_target_properties(mariandecoder PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-endif(NOT COMPILE_DECODER_ONLY)
-
 
 if(CUDA_FOUND)
   cuda_add_library(marian_cuda
