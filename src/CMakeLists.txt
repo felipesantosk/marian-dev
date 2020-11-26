@@ -11,212 +11,209 @@ include_directories(3rd_party/intgemm)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rd_party/intgemm)
 include_directories(${CMAKE_BINARY_DIR}/local/include)
 
-set(MARIAN_SOURCES
-  common/aliases.cpp
-  common/fastopt.cpp
-  common/version.cpp
-  common/utils.cpp
-  common/logging.cpp
-  common/cli_helper.cpp
-  common/cli_wrapper.cpp
-  common/config.cpp
-  common/config_parser.cpp
-  common/config_validator.cpp
-  common/options.cpp
-  common/binary.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/common/build_info.cpp
-  common/io.cpp
-  common/filesystem.cpp
-  common/file_stream.cpp
-  common/file_utils.cpp
-  common/signal_handling.cpp
-  common/types.cpp
+if (NOT COMPILE_DECODER_ONLY)
+  set(MARIAN_SOURCES
+    common/aliases.cpp
+    common/fastopt.cpp
+    common/version.cpp
+    common/utils.cpp
+    common/logging.cpp
+    common/cli_helper.cpp
+    common/cli_wrapper.cpp
+    common/config.cpp
+    common/config_parser.cpp
+    common/config_validator.cpp
+    common/options.cpp
+    common/binary.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/common/build_info.cpp
+    common/io.cpp
+    common/filesystem.cpp
+    common/file_stream.cpp
+    common/file_utils.cpp
+    common/signal_handling.cpp
+    common/types.cpp
 
-  data/alignment.cpp
-  data/vocab.cpp
-  data/default_vocab.cpp
-  data/sentencepiece_vocab.cpp
-  data/factored_vocab.cpp
-  data/corpus_base.cpp
-  data/corpus.cpp
-  data/corpus_sqlite.cpp
-  data/corpus_nbest.cpp
-  data/text_input.cpp
+    data/alignment.cpp
+    data/vocab.cpp
+    data/default_vocab.cpp
+    data/sentencepiece_vocab.cpp
+    data/factored_vocab.cpp
+    data/corpus_base.cpp
+    data/corpus.cpp
+    data/corpus_sqlite.cpp
+    data/corpus_nbest.cpp
+    data/text_input.cpp
 
-  3rd_party/cnpy/cnpy.cpp
-  3rd_party/ExceptionWithCallStack.cpp
+    3rd_party/cnpy/cnpy.cpp
+    3rd_party/ExceptionWithCallStack.cpp
 
-  3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
+    3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
 
-  3rd_party/phf/phf.cc
+    3rd_party/phf/phf.cc
 
-  tensors/backend.cpp
-  tensors/rand.cpp
-  tensors/tensor.cpp
-  tensors/cpu/device.cpp
-  tensors/cpu/prod.cpp
-  tensors/cpu/topk.cpp
-  tensors/cpu/tensor_operators.cpp
+    tensors/backend.cpp
+    tensors/rand.cpp
+    tensors/tensor.cpp
+    tensors/cpu/device.cpp
+    tensors/cpu/prod.cpp
+    tensors/cpu/topk.cpp
+    tensors/cpu/tensor_operators.cpp
 
-  tensors/cpu/integer_common.cpp
-  tensors/cpu/fbgemm/packed_gemm.cpp
+    tensors/cpu/integer_common.cpp
+    tensors/cpu/fbgemm/packed_gemm.cpp
 
-  graph/expression_graph.cpp
-  graph/expression_operators.cpp
-  graph/node.cpp
-  graph/node_operators.cpp
-  graph/node_initializers.cpp
+    graph/expression_graph.cpp
+    graph/expression_operators.cpp
+    graph/node.cpp
+    graph/node_operators.cpp
+    graph/node_initializers.cpp
 
-  onnx/expression_graph_onnx_exporter.cpp
-  onnx/expression_graph_onnx_serialization.cpp
+    onnx/expression_graph_onnx_exporter.cpp
+    onnx/expression_graph_onnx_serialization.cpp
 
-  layers/convolution.cpp
-  layers/generic.cpp
-  layers/loss.cpp
-  layers/weight.cpp
+    layers/convolution.cpp
+    layers/generic.cpp
+    layers/loss.cpp
+    layers/weight.cpp
 
-  rnn/cells.cpp
-  rnn/attention.cpp
+    rnn/cells.cpp
+    rnn/attention.cpp
 
-  optimizers/clippers.cpp
-  optimizers/optimizers.cpp
+    optimizers/clippers.cpp
+    optimizers/optimizers.cpp
 
-  models/model_factory.cpp
-  models/encoder_decoder.cpp
-  models/transformer_stub.cpp
+    models/model_factory.cpp
+    models/encoder_decoder.cpp
+    models/transformer_stub.cpp
 
-  rescorer/score_collector.cpp
-  embedder/vector_collector.cpp
+    rescorer/score_collector.cpp
+    embedder/vector_collector.cpp
 
-  translator/beam_search.cpp
-  translator/history.cpp
-  translator/output_collector.cpp
-  translator/output_printer.cpp
-  translator/nth_element.cpp
-  translator/helpers.cpp
-  translator/scorers.cpp
+    translator/beam_search.cpp
+    translator/history.cpp
+    translator/output_collector.cpp
+    translator/output_printer.cpp
+    translator/nth_element.cpp
+    translator/helpers.cpp
+    translator/scorers.cpp
 
-  training/graph_group_async.cpp
-  training/graph_group_sync.cpp
-  training/graph_group.cpp
-  training/graph_group_singleton.cpp
-  training/validator.cpp
-  training/communicator.cpp
+    training/graph_group_async.cpp
+    training/graph_group_sync.cpp
+    training/graph_group.cpp
+    training/graph_group_singleton.cpp
+    training/validator.cpp
+    training/communicator.cpp
 
-  # this is only compiled to catch build errors, but not linked
-  microsoft/quicksand.cpp
-  microsoft/cosmos.cpp
+    # this is only compiled to catch build errors, but not linked
+    microsoft/quicksand.cpp
+    microsoft/cosmos.cpp
 
-  $<TARGET_OBJECTS:libyaml-cpp>
-  $<TARGET_OBJECTS:SQLiteCpp>
-  $<TARGET_OBJECTS:pathie-cpp>
-  $<TARGET_OBJECTS:zlib>
-)
+    $<TARGET_OBJECTS:libyaml-cpp>
+    $<TARGET_OBJECTS:SQLiteCpp>
+    $<TARGET_OBJECTS:pathie-cpp>
+    $<TARGET_OBJECTS:zlib>
+  )
+else(NOT COMPILE_DECODER_ONLY)
+  set(MARIAN_SOURCES
+    common/aliases.cpp
+    common/fastopt.cpp
+    common/version.cpp
+    common/utils.cpp
+    common/logging.cpp
+    common/cli_helper.cpp
+    common/cli_wrapper.cpp
+    common/config.cpp
+    common/config_parser.cpp
+    common/config_validator.cpp
+    common/options.cpp
+    common/binary.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/common/build_info.cpp
+    common/io.cpp
+    common/filesystem.cpp
+    common/file_stream.cpp
+    common/file_utils.cpp
+    common/signal_handling.cpp
+    common/types.cpp
 
-## MARIANDECODER_SOURCES are roughly all MARIAN_SOURCES except Training
-set(MARIANDECODER_SOURCES
-  common/aliases.cpp
-  common/fastopt.cpp
-  common/version.cpp
-  common/utils.cpp
-  common/logging.cpp
-  common/cli_helper.cpp
-  common/cli_wrapper.cpp
-  common/config.cpp
-  common/config_parser.cpp
-  common/config_validator.cpp
-  common/options.cpp
-  common/binary.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/common/build_info.cpp
-  common/io.cpp
-  common/filesystem.cpp
-  common/file_stream.cpp
-  common/file_utils.cpp
-  common/signal_handling.cpp
-  common/types.cpp
+    data/alignment.cpp
+    data/vocab.cpp
+    data/default_vocab.cpp
+    data/sentencepiece_vocab.cpp
+    data/factored_vocab.cpp
+    data/corpus_base.cpp
+    data/corpus.cpp
+    ###data/corpus_sqlite.cpp
+    data/corpus_nbest.cpp
+    data/text_input.cpp
 
-  data/alignment.cpp
-  data/vocab.cpp
-  data/default_vocab.cpp
-  data/sentencepiece_vocab.cpp
-  data/factored_vocab.cpp
-  data/corpus_base.cpp
-  data/corpus.cpp
-  ###data/corpus_sqlite.cpp
-  data/corpus_nbest.cpp
-  data/text_input.cpp
+    3rd_party/cnpy/cnpy.cpp
+    ###3rd_party/ExceptionWithCallStack.cpp
 
-  3rd_party/cnpy/cnpy.cpp
-  ###3rd_party/ExceptionWithCallStack.cpp
+    3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
 
-  3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
+    3rd_party/phf/phf.cc
 
-  3rd_party/phf/phf.cc
+    tensors/backend.cpp
+    tensors/rand.cpp
+    tensors/tensor.cpp
+    tensors/cpu/device.cpp
+    tensors/cpu/prod.cpp
+    tensors/cpu/topk.cpp
+    tensors/cpu/tensor_operators.cpp
 
-  tensors/backend.cpp
-  tensors/rand.cpp
-  tensors/tensor.cpp
-  tensors/cpu/device.cpp
-  tensors/cpu/prod.cpp
-  tensors/cpu/topk.cpp
-  tensors/cpu/tensor_operators.cpp
+    tensors/cpu/integer_common.cpp
+    ###tensors/cpu/fbgemm/packed_gemm.cpp
 
-  tensors/cpu/integer_common.cpp
-  ###tensors/cpu/fbgemm/packed_gemm.cpp
+    graph/expression_graph.cpp
+    graph/expression_operators.cpp
+    graph/node.cpp
+    graph/node_operators.cpp
+    graph/node_initializers.cpp
 
-  graph/expression_graph.cpp
-  graph/expression_operators.cpp
-  graph/node.cpp
-  graph/node_operators.cpp
-  graph/node_initializers.cpp
+    onnx/expression_graph_onnx_exporter.cpp
+    onnx/expression_graph_onnx_serialization.cpp
 
-  onnx/expression_graph_onnx_exporter.cpp
-  onnx/expression_graph_onnx_serialization.cpp
+    layers/convolution.cpp
+    layers/generic.cpp
+    layers/loss.cpp
+    layers/weight.cpp
 
-  layers/convolution.cpp
-  layers/generic.cpp
-  layers/loss.cpp
-  layers/weight.cpp
+    rnn/cells.cpp
+    rnn/attention.cpp
 
-  rnn/cells.cpp
-  rnn/attention.cpp
+    optimizers/clippers.cpp
+    optimizers/optimizers.cpp
 
-  optimizers/clippers.cpp
-  optimizers/optimizers.cpp
+    models/model_factory.cpp
+    models/encoder_decoder.cpp
+    models/transformer_stub.cpp
 
-  models/model_factory.cpp
-  models/encoder_decoder.cpp
-  models/transformer_stub.cpp
+    rescorer/score_collector.cpp
+    embedder/vector_collector.cpp
 
-  rescorer/score_collector.cpp
-  embedder/vector_collector.cpp
+    translator/beam_search.cpp
+    translator/history.cpp
+    translator/output_collector.cpp
+    translator/output_printer.cpp
+    translator/nth_element.cpp
+    translator/helpers.cpp
+    translator/scorers.cpp
 
-  translator/beam_search.cpp
-  translator/history.cpp
-  translator/output_collector.cpp
-  translator/output_printer.cpp
-  translator/nth_element.cpp
-  translator/helpers.cpp
-  translator/scorers.cpp
+    ### Probably these files are not required for marian-decoder
+    #microsoft/quicksand.cpp
+    #microsoft/cosmos.cpp
 
-  ### Probably these files are not required for marian-decoder
-  #microsoft/quicksand.cpp
-  #microsoft/cosmos.cpp
-
-  $<TARGET_OBJECTS:libyaml-cpp>
-  $<TARGET_OBJECTS:pathie-cpp>
-  ### Probably these files are not required for marian-decoder
-  #$<TARGET_OBJECTS:SQLiteCpp>
-  #$<TARGET_OBJECTS:zlib>
-)
-
-if(NOT COMPILE_DECODER_ONLY)
-  add_library(marian STATIC ${MARIAN_SOURCES})
-  target_compile_options(marian PUBLIC ${ALL_WARNINGS})
-else()
-  add_library(mariandecoder STATIC ${MARIANDECODER_SOURCES})
-  target_compile_options(mariandecoder PUBLIC ${ALL_WARNINGS})
+    $<TARGET_OBJECTS:libyaml-cpp>
+    $<TARGET_OBJECTS:pathie-cpp>
+    ### Probably these files are not required for marian-decoder
+    #$<TARGET_OBJECTS:SQLiteCpp>
+    #$<TARGET_OBJECTS:zlib>
+  )
 endif(NOT COMPILE_DECODER_ONLY)
+
+add_library(marian STATIC ${MARIAN_SOURCES})
+
+target_compile_options(marian PUBLIC ${ALL_WARNINGS})
 
 # Generate git_revision.h to reflect current git revision information
 if(GIT_REVISION STREQUAL "")
@@ -255,28 +252,19 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h
 endif(GIT_REVISION STREQUAL "")
 
 add_custom_target(marian_version DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/git_revision.h)
-
-if(NOT COMPILE_DECODER_ONLY)
-  add_dependencies(marian marian_version) # marian must depend on it so that it gets created first
-  # make sure all local dependencies are installed first before this is built
-  add_dependencies(marian 3rd_party_installs)
-  # Add external libs to the public interface of the library
-  target_link_libraries(marian ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-  set_target_properties(marian PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-  set_target_properties(marian PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-else()
-  add_dependencies(mariandecoder marian_version) # mariandecoder must depend on it so that it gets created first
-  # make sure all local dependencies are installed first before this is built
-  add_dependencies(mariandecoder 3rd_party_installs)
-  # Add external libs to the public interface of the library
-  target_link_libraries(mariandecoder ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-  set_target_properties(mariandecoder PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-  set_target_properties(mariandecoder PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-endif(NOT COMPILE_DECODER_ONLY)
+add_dependencies(marian marian_version) # marian must depend on it so that it gets created first
+# make sure all local dependencies are installed first before this is built
+add_dependencies(marian 3rd_party_installs)
 
 if(APPLE) # This is a dependency of pathie but I can't seem to link it into that CMakeLists because we're not compiling it as a library.
    set(EXT_LIBS ${EXT_LIBS} iconv)
 endif()
+
+# Add external libs to the public interface of the library
+target_link_libraries(marian ${EXT_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+set_target_properties(marian PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set_target_properties(marian PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 if(CUDA_FOUND)
   cuda_add_library(marian_cuda
@@ -314,68 +302,67 @@ endif(CUDA_FOUND)
 # as a sub-project of another build system that is only interested in the Marian output library.
 option(COMPILE_LIBRARY_ONLY "Build only the Marian library and exclude all executables." OFF)
 if (NOT COMPILE_LIBRARY_ONLY)
+  if(COMPILE_DECODER_ONLY)
+    add_executable(marian_decoder command/marian_decoder.cpp)
+    set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
+    target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
+    set(EXECUTABLES marian_decoder)
 
-  if(NOT COMPILE_DECODER_ONLY)
-  add_executable(marian_train command/marian_main.cpp)
-  set_target_properties(marian_train PROPERTIES OUTPUT_NAME marian)
-  target_compile_options(marian_train PRIVATE ${ALL_WARNINGS})
-  endif(NOT COMPILE_DECODER_ONLY)
-
-  add_executable(marian_decoder command/marian_decoder.cpp)
-  set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
-  target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
-  if(COMPILE_WASM)
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
-  endif(COMPILE_WASM)
-
-  if (COMPILE_DECODER_ONLY)
-  set(EXECUTABLES marian_decoder)
+    if(COMPILE_WASM)
+      set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    endif(COMPILE_WASM)
   else(COMPILE_DECODER_ONLY)
-  add_executable(marian_scorer command/marian_scorer.cpp)
-  set_target_properties(marian_scorer PROPERTIES OUTPUT_NAME marian-scorer)
-  target_compile_options(marian_scorer PRIVATE ${ALL_WARNINGS})
+    add_executable(marian_train command/marian_main.cpp)
+    set_target_properties(marian_train PROPERTIES OUTPUT_NAME marian)
+    target_compile_options(marian_train PRIVATE ${ALL_WARNINGS})
 
-  add_executable(marian_vocab command/marian_vocab.cpp)
-  set_target_properties(marian_vocab PROPERTIES OUTPUT_NAME marian-vocab)
-  target_compile_options(marian_vocab PRIVATE ${ALL_WARNINGS})
+    add_executable(marian_decoder command/marian_decoder.cpp)
+    set_target_properties(marian_decoder PROPERTIES OUTPUT_NAME marian-decoder)
+    target_compile_options(marian_decoder PRIVATE ${ALL_WARNINGS})
 
-  add_executable(marian_conv command/marian_conv.cpp)
-  set_target_properties(marian_conv PROPERTIES OUTPUT_NAME marian-conv)
-  target_compile_options(marian_conv PRIVATE ${ALL_WARNINGS})
+    add_executable(marian_scorer command/marian_scorer.cpp)
+    set_target_properties(marian_scorer PROPERTIES OUTPUT_NAME marian-scorer)
+    target_compile_options(marian_scorer PRIVATE ${ALL_WARNINGS})
 
-  set(EXECUTABLES ${EXECUTABLES} marian_train marian_decoder marian_scorer marian_vocab marian_conv)
-  endif(COMPILE_DECODER_ONLY)
+    add_executable(marian_vocab command/marian_vocab.cpp)
+    set_target_properties(marian_vocab PROPERTIES OUTPUT_NAME marian-vocab)
+    target_compile_options(marian_vocab PRIVATE ${ALL_WARNINGS})
 
-  if(NOT COMPILE_DECODER_ONLY)
-  # marian.zip and marian.tgz
-  # This combines marian, marian_decoder in a single ZIP or TAR file for
-  # execution in MSFT internal tools FLO and Philly.
-  # For Philly submission, we need statically-linked versions to deal with
-  # library dependencies, so this target is only enabled for static builds.
-  if(USE_STATIC_LIBS)
-    add_custom_command(
-      OUTPUT "${CMAKE_BINARY_DIR}/marian.zip"
-      COMMAND zip -v -0 -j "${CMAKE_BINARY_DIR}/marian.zip"
-                  "${CMAKE_BINARY_DIR}/marian"
-                  "${CMAKE_BINARY_DIR}/marian-decoder"
-                  "${CMAKE_BINARY_DIR}/marian-scorer"
-                  "${CMAKE_BINARY_DIR}/marian-vocab"
-                  "${CMAKE_BINARY_DIR}/marian-conv"
-      DEPENDS marian_train marian_decoder marian_scorer marian_vocab marian_conv)
-    add_custom_target(marian_zip DEPENDS "${CMAKE_BINARY_DIR}/marian.zip")
+    add_executable(marian_conv command/marian_conv.cpp)
+    set_target_properties(marian_conv PROPERTIES OUTPUT_NAME marian-conv)
+    target_compile_options(marian_conv PRIVATE ${ALL_WARNINGS})
 
-    add_custom_command(
-      OUTPUT "${CMAKE_BINARY_DIR}/marian.tgz"
-      COMMAND tar -cvvzf "${CMAKE_BINARY_DIR}/marian.tgz" -C "${CMAKE_BINARY_DIR}"
-                  "marian"
-                  "marian-decoder"
-                  "marian-scorer"
-                  "marian-vocab"
-                  "marian-conv"
-      DEPENDS marian_train marian_decoder marian_scorer marian_vocab marian_conv)
-    add_custom_target(marian_tgz DEPENDS "${CMAKE_BINARY_DIR}/marian.tgz")
-    add_custom_target(philly DEPENDS marian_tgz marian_zip)
-  endif(USE_STATIC_LIBS)
+    set(EXECUTABLES ${EXECUTABLES} marian_train marian_decoder marian_scorer marian_vocab marian_conv)
+
+    # marian.zip and marian.tgz
+    # This combines marian, marian_decoder in a single ZIP or TAR file for
+    # execution in MSFT internal tools FLO and Philly.
+    # For Philly submission, we need statically-linked versions to deal with
+    # library dependencies, so this target is only enabled for static builds.
+    if(USE_STATIC_LIBS)
+      add_custom_command(
+        OUTPUT "${CMAKE_BINARY_DIR}/marian.zip"
+        COMMAND zip -v -0 -j "${CMAKE_BINARY_DIR}/marian.zip"
+                    "${CMAKE_BINARY_DIR}/marian"
+                    "${CMAKE_BINARY_DIR}/marian-decoder"
+                    "${CMAKE_BINARY_DIR}/marian-scorer"
+                    "${CMAKE_BINARY_DIR}/marian-vocab"
+                    "${CMAKE_BINARY_DIR}/marian-conv"
+        DEPENDS marian_train marian_decoder marian_scorer marian_vocab marian_conv)
+      add_custom_target(marian_zip DEPENDS "${CMAKE_BINARY_DIR}/marian.zip")
+
+      add_custom_command(
+        OUTPUT "${CMAKE_BINARY_DIR}/marian.tgz"
+        COMMAND tar -cvvzf "${CMAKE_BINARY_DIR}/marian.tgz" -C "${CMAKE_BINARY_DIR}"
+                    "marian"
+                    "marian-decoder"
+                    "marian-scorer"
+                    "marian-vocab"
+                    "marian-conv"
+        DEPENDS marian_train marian_decoder marian_scorer marian_vocab marian_conv)
+      add_custom_target(marian_tgz DEPENDS "${CMAKE_BINARY_DIR}/marian.tgz")
+      add_custom_target(philly DEPENDS marian_tgz marian_zip)
+    endif(USE_STATIC_LIBS)
   endif(NOT COMPILE_DECODER_ONLY)
 
   if(COMPILE_SERVER)
@@ -392,11 +379,7 @@ if (NOT COMPILE_LIBRARY_ONLY)
   endif(COMPILE_SERVER)
 
   foreach(exec ${EXECUTABLES})
-    if(COMPILE_DECODER_ONLY)
-      target_link_libraries(${exec} mariandecoder)
-    else(COMPILE_DECODER_ONLY)
-      target_link_libraries(${exec} marian)
-    endif(COMPILE_DECODER_ONLY)
+    target_link_libraries(${exec} marian)
     if(CUDA_FOUND)
       target_link_libraries(${exec} marian_cuda)
     endif(CUDA_FOUND)
