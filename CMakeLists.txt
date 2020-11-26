@@ -36,6 +36,13 @@ if(NOT COMPILE_WASM)
   set(BUILD_ARCH native CACHE STRING "Compile for this CPU architecture.")
 endif()
 
+if(COMPILE_DECODER_ONLY)
+  # COMPILE_DECODER_ONLY has been used as a compile option as well as compile definition
+  # A separate compile option should be used to indicate that user wants to build Decoder and
+  # a separate compile definition should be used to enable/disable the code specific to decoder
+  add_definitions(-DCOMPILE_DECODER_ONLY=1)
+endif(COMPILE_DECODER_ONLY)
+
 # fbgemm and sentencepiece are both defined with "non-local" installation targets (the source projects don't define them,
 # so we define them in src\3rd_party\CMakeLists.txt), but that isn't supported until CMake 3.12. Prior to CMake 3.12,
 # targets could only be install(...)ed in the same CMakeLists.txt they were defined. We currently target CMake 3.5.1
