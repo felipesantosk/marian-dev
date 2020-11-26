@@ -165,6 +165,8 @@ else(MSVC)
       set(INTRINSICS "${INTRINSICS} -mavx512f")
       list(APPEND INTRINSICS_NVCC -Xcompiler\ -mavx512f)
     endif(AVX512_FOUND)
+  else()
+    set(INTRINSICS "-msse4.1")
   endif()
 
   if(COMPILE_WASM)
