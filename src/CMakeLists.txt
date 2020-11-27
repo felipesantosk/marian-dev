@@ -363,7 +363,7 @@ if (NOT COMPILE_LIBRARY_ONLY)
       add_custom_target(marian_tgz DEPENDS "${CMAKE_BINARY_DIR}/marian.tgz")
       add_custom_target(philly DEPENDS marian_tgz marian_zip)
     endif(USE_STATIC_LIBS)
-  endif(NOT COMPILE_DECODER_ONLY)
+  endif(COMPILE_DECODER_ONLY)
 
   if(COMPILE_SERVER)
     add_executable(marian_server command/marian_server.cpp)
