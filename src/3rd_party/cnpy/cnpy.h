@@ -135,7 +135,7 @@ namespace cnpy {
 
     template<typename T> void npz_save(std::string zipname, std::string fname, const T* data, const unsigned int* shape, const unsigned int ndims, std::string mode = "w")
     {
-#if defined(__EMSCRIPTEN__)
+#if defined(COMPILE_DECODER_ONLY)
             throw std::runtime_error("npz_save: Platform not supported");
 #else
         //first, append a .npy to the fname
@@ -271,7 +271,7 @@ namespace cnpy {
     static inline
     void npz_save(std::string zipname, const std::vector<NpzItem>& items)
     {
-#if defined(__EMSCRIPTEN__)
+#if defined(COMPILE_DECODER_ONLY)
         throw std::runtime_error("npz_save: Platform not supported");
 #else
         auto tmpname = zipname + "$$"; // TODO: add thread id or something

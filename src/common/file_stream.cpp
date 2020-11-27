@@ -23,7 +23,7 @@ InputFileStream::InputFileStream(const std::string &file)
     : std::istream(NULL) {
   // the special syntax "command |" starts command in a sh shell and reads out its result
   if (marian::utils::endsWith(file, "|")) {
-#if defined(__EMSCRIPTEN__)
+#if defined(COMPILE_DECODER_ONLY)
     ABORT("Pipe syntax not supported in this build of Marian: {}", file);
 #elif defined(__unix__)
     auto command = file.substr(0, file.size() - 1);
@@ -45,7 +45,7 @@ InputFileStream::InputFileStream(const std::string &file)
   ABORT_IF(!ret, "Error opening file ({}): {}", errno, file_.string());
   ABORT_IF(ret != streamBuf1_.get(), "Return value is not equal to streambuf pointer, that is weird");
 
-#ifndef __EMSCRIPTEN__
+#ifndef COMPILE_DECODER_ONLY
   // insert .gz decompression
   if(marian::utils::endsWith(file, ".gz")) {
     streamBuf2_ = std::move(streamBuf1_);
@@ -98,7 +98,7 @@ OutputFileStream::OutputFileStream(const std::string &file)
   ABORT_IF(ret != streamBuf1_.get(), "Return value is not equal to streambuf pointer, that is weird");
 
   if(file_.extension() == marian::filesystem::Path(".gz")) {
-#ifndef __EMSCRIPTEN__
+#ifndef COMPILE_DECODER_ONLY
     streamBuf2_.reset(new zstr::ostreambuf(streamBuf1_.get()));
     this->init(streamBuf2_.get());
 #endif
