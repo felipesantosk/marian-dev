@@ -29,13 +29,18 @@ native_cmake_cmd = ${cmake_cmd}
 native_cmake_cmd += -DMKL=on
 native_cmake_cmd += -DCOMPILE_CPU=on
 native_cmake_cmd += -DCOMPILE_WASM=off
-native_decoder_only_cmake_cmd = ${native_cmake_cmd}
+
+native_decoder_only_cmake_cmd = ${cmake_cmd}
+native_decoder_only_cmake_cmd += -DMKL=off
+native_decoder_only_cmake_cmd += -DCOMPILE_CPU=off
 native_decoder_only_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
+native_decoder_only_cmake_cmd += -DCOMPILE_WASM=off
+
 wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DMKL=off
 wasm_cmake_cmd += -DCOMPILE_CPU=off
-wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
+wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
 make_cmd  = make
