@@ -65,11 +65,15 @@ cd ${BUILD_DIR} &&\
 (${native_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
+# Remove the build directory of native marian-decoder, forcing a clean compilation attempt
+clean-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
+clean-decoder-only-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
+
 # Compile native version of marian-decoder only
 compile-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
 compile-decoder-only-native: ${HOME}/.ccache
-	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
-mkdir -p ${BUILD_DIR} &&\
+	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
 (${native_decoder_only_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
