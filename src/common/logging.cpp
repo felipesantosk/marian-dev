@@ -148,7 +148,7 @@ namespace marian {
     #ifndef COMPILE_DECODER_ONLY
     return ::Microsoft::MSR::CNTK::DebugUtil::GetCallStack(skipLevels + 2, /*makeFunctionNamesStandOut=*/true);
     #endif
-    return "not supported";
+    return "Unsupported marian::getCallStack()";
   }
 
   void noinline logCallStack(size_t skipLevels) {
