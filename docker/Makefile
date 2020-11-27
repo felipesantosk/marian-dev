@@ -44,7 +44,7 @@ wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
 make_cmd  = make
-make_cmd += VERBOSE=1
+#make_cmd += VERBOSE=1
 
 # ... and running things on Docker
 docker_mounts  = ${PWD}/..:/repo
