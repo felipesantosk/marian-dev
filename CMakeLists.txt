@@ -185,6 +185,8 @@ else(MSVC)
     set(EMCC_FLAGS "-O2 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0")
     # necessary to be able to use files downloaded in JS (https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support)
     set(EMCC_FLAGS "${EMCC_FLAGS} -s FORCE_FILESYSTEM=1")
+    # necessary to allow the total amount of memory to change depending on the demands of the application
+    set(EMCC_FLAGS "${EMCC_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
     # use our customizations to the generated emscripted html and js resources
     set(EMCC_FLAGS "${EMCC_FLAGS} --pre-js /repo/wasm/pre-module.js --post-js /repo/wasm/post-module.js --shell-file /repo/wasm/custom_shell.html")
   endif()
@@ -205,6 +207,12 @@ else(MSVC)
     -Wno-pragmas; -Wno-unused-parameter; -Wno-unused-function;
     -Wno-unused-value; -Wno-unknown-pragmas; -Wno-sign-compare;
     -Wno-missing-field-initializers;)
+  if(COMPILE_WASM)
+    # Disabling Pthreads + memory growth warning to be an error
+    # Pthreads + memory growth causes JS accessing the wasm memory to be slow
+    # https://github.com/WebAssembly/design/issues/1271
+    list(APPEND ALL_WARNINGS -Wno-error=pthreads-mem-growth)
+  endif(COMPILE_WASM)
 
   # This warning does not exist prior to gcc 5.0
   if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
