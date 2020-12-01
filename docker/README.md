@@ -82,6 +82,13 @@ Compile only sentencepiece to wasm:
 make compile-sentencepiece-wasm
 ```
 
+Compile and run a wasm stdin test:
+
+```bash
+make compile-and-run-test-stdin-wasm
+open "http://localhost:8000/compile-test-stdin-wasm.html"
+```
+
 Enter a docker container shell for manually running commands:
 
 ```bash
