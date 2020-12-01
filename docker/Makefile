@@ -119,6 +119,25 @@ cd ${BUILD_DIR} && \
 (emmake ${make_cmd}) || \
 rm CMakeCache.txt)'
 
+# Compile stdin test directly
+compile_test_stdin_cmd  = em++
+compile_test_stdin_cmd += -O2 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0
+compile_test_stdin_cmd += -s FORCE_FILESYSTEM=1
+compile_test_stdin_cmd += -s ALLOW_MEMORY_GROWTH=1
+compile_test_stdin_cmd += -o test-stdin-wasm.html
+compile_test_stdin_cmd += --pre-js /repo/wasm/pre-module.js --post-js /repo/wasm/post-module.js --shell-file /repo/wasm/custom_shell.html
+compile_test_stdin_cmd += /repo/wasm/test_stdin.cpp
+
+compile-and-run-test-stdin-wasm: BUILD_DIR = /repo/build-test-stdin-wasm
+compile-and-run-test-stdin-wasm:
+	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
+mkdir -p ${BUILD_DIR} &&\
+cd ${BUILD_DIR} &&\
+${compile_test_stdin_cmd}'
+compile-and-run-test-stdin-wasm:
+	${run_on_docker} -p 8000:8000 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8000 ${BUILD_DIR}'
+
+
 # Start interactive shells for development / debugging purposes
 native-shell: INTERACTIVE_DOCKER_SESSION = -it
 native-shell:
