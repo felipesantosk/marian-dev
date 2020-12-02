@@ -77,7 +77,12 @@ protected:
 private:
   Ptr<BatchStats> stats_;
   
+#if COMPILE_WASM
+  // TMP set to false to check if wasm builds run further
+  bool runAsync_{false}; // use asynchronous batch pre-fetching by default. We want to be able to disable this when running in library mode and for exception-safety.
+#else
   bool runAsync_{true}; // use asynchronous batch pre-fetching by default. We want to be able to disable this when running in library mode and for exception-safety.
+#endif
 
   // state of fetching
   std::deque<BatchPtr> bufferedBatches_; // current swath of batches that next() reads from
@@ -123,8 +128,14 @@ private:
       maxiBatch.reset(new sample_queue(cmpNone));
     }
 
+#if COMPILE_WASM
+    // TMP hardcoding to check if wasm builds run further
+    size_t maxBatchSize = 1;
+    size_t maxSize = maxBatchSize * 1;
+#else
     size_t maxBatchSize = options_->get<int>("mini-batch");
     size_t maxSize = maxBatchSize * options_->get<int>("maxi-batch");
+#endif
 
     // consume data from corpus into maxi-batch (single sentences)
     // sorted into specified order (due to queue)
