@@ -76,6 +76,16 @@ Remove the marian-decoder WASM build dir, forcing the next compilation attempt t
 make clean-wasm
 ```
 
+To compile to WASM without pthreads, the corresponding commands are:
+
+```bash
+make clean-wasm-without-pthreads
+make compile-wasm-without-pthreads
+make package-files-wasm-without-pthreads
+make run-wasm-without-pthreads
+open "http://localhost:8001/marian-decoder.html"
+```
+
 Compile only sentencepiece to wasm:
 
 ```bash
@@ -86,7 +96,7 @@ Compile and run a wasm stdin test:
 
 ```bash
 make compile-and-run-test-stdin-wasm
-open "http://localhost:8000/compile-test-stdin-wasm.html"
+open "http://localhost:8009/compile-test-stdin-wasm.html"
 ```
 
 Enter a docker container shell for manually running commands:

@@ -19,6 +19,7 @@ option(COMPILE_SERVER "Compile marian-server" OFF)
 option(COMPILE_TESTS "Compile tests" OFF)
 option(COMPILE_WASM "Compile to WASM" OFF)
 option(COMPILE_DECODER_ONLY "Compile marian-decoder only" OFF)
+option(USE_PTHREADS "Use pthreads " ON)
 option(USE_CCACHE "Use ccache compiler cache (https://ccache.dev)" OFF)
 option(USE_CUDNN "Use CUDNN library" OFF)
 option(USE_DOXYGEN "Build documentation with Doxygen" ON)
@@ -182,11 +183,15 @@ else(MSVC)
     # Setting USE_SSE2 definition to enable SSE2 specific code in "sse_mathfun.h" for wasm builds
     add_definitions(-DUSE_SSE2=1)
 
-    set(EMCC_FLAGS "-O2 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0")
+    set(EMCC_FLAGS "-O2 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0 -s LLD_REPORT_UNDEFINED")
     # necessary to be able to use files downloaded in JS (https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support)
     set(EMCC_FLAGS "${EMCC_FLAGS} -s FORCE_FILESYSTEM=1")
     # necessary to allow the total amount of memory to change depending on the demands of the application
     set(EMCC_FLAGS "${EMCC_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
+    # run in a worker
+    if(USE_PTHREADS)
+      set(EMCC_FLAGS "${EMCC_FLAGS} -s PROXY_TO_PTHREAD=1")
+    endif(USE_PTHREADS)
     # use our customizations to the generated emscripted html and js resources
     set(MARIAN_DECODER_EMSCRIPTEN_LINK_FLAGS "${MARIAN_DECODER_EMSCRIPTEN_LINK_FLAGS} --pre-js /repo/wasm/pre-module.js --post-js /repo/wasm/post-module.js --shell-file /repo/wasm/custom_shell.html")
   endif()
@@ -207,12 +212,12 @@ else(MSVC)
     -Wno-pragmas; -Wno-unused-parameter; -Wno-unused-function;
     -Wno-unused-value; -Wno-unknown-pragmas; -Wno-sign-compare;
     -Wno-missing-field-initializers;)
-  if(COMPILE_WASM)
+  if(COMPILE_WASM AND USE_PTHREADS)
     # Disabling Pthreads + memory growth warning to be an error
     # Pthreads + memory growth causes JS accessing the wasm memory to be slow
     # https://github.com/WebAssembly/design/issues/1271
     list(APPEND ALL_WARNINGS -Wno-error=pthreads-mem-growth)
-  endif(COMPILE_WASM)
+  endif(COMPILE_WASM AND USE_PTHREADS)
 
   # This warning does not exist prior to gcc 5.0
   if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
@@ -226,7 +231,11 @@ else(MSVC)
   endif(CMAKE_COMPILER_IS_GNUCC)
 
 
-  set(CMAKE_CXX_FLAGS                 "-std=c++11 -pthread ${CMAKE_GCC_FLAGS} -fPIC ${DISABLE_GLOBALLY} -march=${BUILD_ARCH} ${INTRINSICS}")
+  if(USE_PTHREADS)
+    set(PTHREAD_FLAG "-pthread")
+  endif(USE_PTHREADS)
+
+  set(CMAKE_CXX_FLAGS                 "-std=c++11 ${PTHREAD_FLAG} ${CMAKE_GCC_FLAGS} -fPIC ${DISABLE_GLOBALLY} -march=${BUILD_ARCH} ${INTRINSICS}")
   if(COMPILE_WASM)
     set(CMAKE_CXX_FLAGS_RELEASE         "${EMCC_FLAGS}")
   else()
@@ -240,7 +249,7 @@ else(MSVC)
   set(CMAKE_CXX_FLAGS_PROFUSE         "${CMAKE_CXX_FLAGS_RELEASE} -fprofile-use -fprofile-correction")
 
   # these need to be set separately
-  set(CMAKE_C_FLAGS                 "-pthread ${CMAKE_GCC_FLAGS} -fPIC ${DISABLE_GLOBALLY} -march=${BUILD_ARCH} ${INTRINSICS}")
+  set(CMAKE_C_FLAGS                 "${PTHREAD_FLAG} ${CMAKE_GCC_FLAGS} -fPIC ${DISABLE_GLOBALLY} -march=${BUILD_ARCH} ${INTRINSICS}")
   if(COMPILE_WASM)
     set(CMAKE_C_FLAGS_RELEASE         "${EMCC_FLAGS}")
   else()

@@ -7,7 +7,9 @@
 #include "data/shortlist.h"
 #include "data/text_input.h"
 
+#if USE_PTHREADS
 #include "3rd_party/threadpool.h"
+#endif
 
 #include "translator/history.h"
 #include "translator/output_collector.h"
@@ -66,7 +68,9 @@ public:
     auto devices = Config::getDevices(options_);
     numDevices_ = devices.size();
 
+#if USE_PTHREADS
     ThreadPool threadPool(numDevices_, numDevices_);
+#endif
     scorers_.resize(numDevices_);
     graphs_.resize(numDevices_);
 
@@ -106,7 +110,11 @@ public:
         graph->forward();
       };
 
+#if USE_PTHREADS
       threadPool.enqueue(task, device, id++);
+#else
+      task(device, id++);
+#endif
     }
 
     if(options_->get<bool>("output-sampling", false)) {
@@ -124,7 +132,9 @@ public:
   void run() override {
     data::BatchGenerator<data::Corpus> bg(corpus_, options_);
 
+#if USE_PTHREADS
     ThreadPool threadPool(numDevices_, numDevices_);
+#endif
 
     size_t batchId = 0;
     auto collector = New<OutputCollector>(options_->get<std::string>("output"));
@@ -170,7 +180,11 @@ public:
         }
       };
 
+#if USE_PTHREADS
       threadPool.enqueue(task, batchId++);
+#else
+      task(batchId++);
+#endif
 
     }
   }

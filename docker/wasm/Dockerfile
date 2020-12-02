@@ -1,4 +1,4 @@
-FROM emscripten/emsdk:2.0.8
+FROM emscripten/emsdk:2.0.9
 
 # Install specific version of CMake
 WORKDIR /usr

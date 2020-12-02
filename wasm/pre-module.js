@@ -1,5 +1,7 @@
 // Enables setting runtime args via the query string:
-Module["arguments"] = window.location.search.substr(1).split('%20')
+// Module["arguments"] = window.location.search.substr(1).split('%20')
+Module["arguments"] = "-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm --cpu-threads 1".split(' ');
+console.log('Module["arguments"]', Module["arguments"]);
 var initStdInOutErr = function() {
   var input = "Hola mundo\n";
   var i = 0;

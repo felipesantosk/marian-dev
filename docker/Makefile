@@ -43,6 +43,8 @@ wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
+wasm_without_pthreads_cmake_cmd = ${wasm_cmake_cmd}
+wasm_without_pthreads_cmake_cmd += -DUSE_PTHREADS=off
 make_cmd  = make
 #make_cmd += VERBOSE=1
 
@@ -103,6 +105,31 @@ run-wasm: BUILD_DIR = /repo/build-wasm-docker
 run-wasm:
 	${run_on_docker} -p 8000:8000 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8000 ${BUILD_DIR}'
 
+# Remove the marian-decoder WASM-without-pthreads build dir, forcing a clean compilation attempt
+clean-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
+clean-wasm-without-pthreads: ${HOME}/.ccache
+	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
+
+# Compile marian-decoder to WASM-without-pthreads
+compile-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
+compile-wasm-without-pthreads: ${HOME}/.ccache
+	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} && \
+cd ${BUILD_DIR} && \
+(emcmake ${wasm_without_pthreads_cmake_cmd} .. && \
+(emmake ${make_cmd}) || \
+rm CMakeCache.txt)'
+
+# Prepare files to be used with WASM-without-pthreads-compiled marian-decoder
+package-files-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
+package-files-wasm-without-pthreads: MODELS_DIR = /repo/models
+package-files-wasm-without-pthreads:
+	${run_on_docker} ${WASM_IMAGE} bash -c 'python3 /emsdk/upstream/emscripten/tools/file_packager.py ${BUILD_DIR}/model-files.data --preload ${MODELS_DIR} --js-output=${BUILD_DIR}/model-files.js'
+
+# Run WASM-without-pthreads-compiled marian-decoder
+run-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
+run-wasm-without-pthreads:
+	${run_on_docker} -p 8001:8001 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8001 ${BUILD_DIR}'
+
 # Compile sentencepiece to WASM
 sentencepiece_wasm_cmake_cmd = cmake --debug-output -Wno-dev
 sentencepiece_wasm_cmake_cmd += -DCOMPILE_WASM=on
@@ -135,7 +162,7 @@ mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
 ${compile_test_stdin_cmd}'
 compile-and-run-test-stdin-wasm:
-	${run_on_docker} -p 8000:8000 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8000 ${BUILD_DIR}'
+	${run_on_docker} -p 8009:8009 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8009 ${BUILD_DIR}'
 
 
 # Start interactive shells for development / debugging purposes
