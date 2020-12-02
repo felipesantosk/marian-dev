@@ -128,14 +128,8 @@ private:
       maxiBatch.reset(new sample_queue(cmpNone));
     }
 
-#if COMPILE_WASM
-    // TMP hardcoding to check if wasm builds run further
-    size_t maxBatchSize = 1;
-    size_t maxSize = maxBatchSize * 1;
-#else
     size_t maxBatchSize = options_->get<int>("mini-batch");
     size_t maxSize = maxBatchSize * options_->get<int>("maxi-batch");
-#endif
 
     // consume data from corpus into maxi-batch (single sentences)
     // sorted into specified order (due to queue)
