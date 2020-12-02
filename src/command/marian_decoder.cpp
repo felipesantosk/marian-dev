@@ -14,11 +14,6 @@ int main(int argc, char** argv) {
   auto options = parseOptions(argc, argv, cli::mode::translation);
   auto task = New<Translate<BeamSearch>>(options);
 
-#ifdef COMPILE_WASM
-  fprintf(stderr, "Testing ABORT\n");fflush(stderr);
-  ABORT("Testing ABORT");
-#endif
-
   timer::Timer timer;
   fprintf(stderr, "Just before task->run()\n");fflush(stderr);
   task->run();
