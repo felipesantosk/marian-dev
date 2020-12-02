@@ -269,7 +269,9 @@ public:
     batchGenerator.prepare();
 
     {
+#if USE_PTHREADS
       ThreadPool threadPool_(numDevices_, numDevices_);
+#endif
 
       for(auto batch : batchGenerator) {
         auto task = [=](size_t id) {
@@ -292,7 +294,11 @@ public:
           }
         };
 
+#if USE_PTHREADS
         threadPool_.enqueue(task, batchId);
+#else
+        task(batchId);
+#endif
         batchId++;
       }
     }
