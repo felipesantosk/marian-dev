@@ -309,6 +309,7 @@ if (NOT COMPILE_LIBRARY_ONLY)
     set(EXECUTABLES marian_decoder)
 
     if(COMPILE_WASM)
+      set_target_properties(marian_decoder PROPERTIES LINK_FLAGS "${MARIAN_DECODER_EMSCRIPTEN_LINK_FLAGS}")
       set(CMAKE_EXECUTABLE_SUFFIX ".html")
     endif(COMPILE_WASM)
   else(COMPILE_DECODER_ONLY)

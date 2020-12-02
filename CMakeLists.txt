@@ -188,7 +188,7 @@ else(MSVC)
     # necessary to allow the total amount of memory to change depending on the demands of the application
     set(EMCC_FLAGS "${EMCC_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
     # use our customizations to the generated emscripted html and js resources
-    set(EMCC_FLAGS "${EMCC_FLAGS} --pre-js /repo/wasm/pre-module.js --post-js /repo/wasm/post-module.js --shell-file /repo/wasm/custom_shell.html")
+    set(MARIAN_DECODER_EMSCRIPTEN_LINK_FLAGS "${MARIAN_DECODER_EMSCRIPTEN_LINK_FLAGS} --pre-js /repo/wasm/pre-module.js --post-js /repo/wasm/post-module.js --shell-file /repo/wasm/custom_shell.html")
   endif()
 
   if(USE_FBGEMM)
