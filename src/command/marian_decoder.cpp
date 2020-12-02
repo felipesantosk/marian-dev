@@ -12,6 +12,7 @@ int main(int argc, char** argv) {
   auto task = New<Translate<BeamSearch>>(options);
 
   timer::Timer timer;
+  fprintf(stderr, "Just before task->run()\n");fflush(stderr);
   task->run();
   LOG(info, "Total time: {:.5f}s wall", timer.elapsed());
 

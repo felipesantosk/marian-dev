@@ -130,7 +130,9 @@ public:
   }
 
   void run() override {
+    fprintf(stderr, "Translate instance run() entered\n");fflush(stderr);
     data::BatchGenerator<data::Corpus> bg(corpus_, options_);
+    fprintf(stderr, "RUN 1\n");fflush(stderr);
 
 #if USE_PTHREADS
     ThreadPool threadPool(numDevices_, numDevices_);
