@@ -183,7 +183,7 @@ else(MSVC)
     # Setting USE_SSE2 definition to enable SSE2 specific code in "sse_mathfun.h" for wasm builds
     add_definitions(-DUSE_SSE2=1)
 
-    set(EMCC_FLAGS "-O2 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0 -s LLD_REPORT_UNDEFINED")
+    set(EMCC_FLAGS "-O0 -s WASM=1 -s ASSERTIONS=1 -s DISABLE_EXCEPTION_CATCHING=0 -s LLD_REPORT_UNDEFINED")
     # necessary to be able to use files downloaded in JS (https://emscripten.org/docs/api_reference/Filesystem-API.html#including-file-system-support)
     set(EMCC_FLAGS "${EMCC_FLAGS} -s FORCE_FILESYSTEM=1")
     # necessary to allow the total amount of memory to change depending on the demands of the application
