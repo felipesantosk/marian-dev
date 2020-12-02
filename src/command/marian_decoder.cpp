@@ -5,6 +5,9 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#ifdef COMPILE_WASM
+#include <bind.h>
+#endif
 
 int main(int argc, char** argv) {
   using namespace marian;
@@ -18,3 +21,13 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+
+#ifdef COMPILE_WASM
+std::string getExceptionMessage(intptr_t exceptionPtr) {
+  return std::string(reinterpret_cast<std::exception *>(exceptionPtr)->what());
+}
+
+EMSCRIPTEN_BINDINGS(Bindings) {
+  emscripten::function("getExceptionMessage", &getExceptionMessage);
+};
+#endif
