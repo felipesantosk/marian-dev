@@ -159,9 +159,8 @@ compile-and-run-test-stdin-wasm:
 	${run_on_docker} ${WASM_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
 mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
-${compile_test_stdin_cmd}'
-compile-and-run-test-stdin-wasm:
-	${run_on_docker} -p 8009:8009 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8009 ${BUILD_DIR}'
+${compile_test_stdin_cmd} &&\
+${run_on_docker} -p 8009:8009 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8009 ${BUILD_DIR}'
 
 
 # Start interactive shells for development / debugging purposes
