@@ -11,15 +11,22 @@
 
 int main(int argc, char** argv) {
   using namespace marian;
-  auto options = parseOptions(argc, argv, cli::mode::translation);
-  auto task = New<Translate<BeamSearch>>(options);
 
-  timer::Timer timer;
-  fprintf(stderr, "Just before task->run()\n");fflush(stderr);
-  task->run();
-  LOG(info, "Total time: {:.5f}s wall", timer.elapsed());
+  try {
+      auto options = parseOptions(argc, argv, cli::mode::translation);
+      auto task = New<Translate<BeamSearch>>(options);
 
-  return 0;
+      timer::Timer timer;
+      fprintf(stderr, "Just before task->run()\n");fflush(stderr);
+      task->run();
+      LOG(info, "Total time: {:.5f}s wall", timer.elapsed());
+
+      return 0;
+  } catch (const std::exception& e) {
+      fprintf(stderr, "EXCEPTION in marian decoder main(): %s\n", e.what());fflush(stderr);
+      return 1;
+  }
+
 }
 
 #ifdef COMPILE_WASM
