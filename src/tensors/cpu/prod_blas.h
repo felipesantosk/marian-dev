@@ -2,7 +2,7 @@
 #include <mkl.h>
 #elif BLAS_FOUND
   #if WASM_COMPATIBLE_BLAS
-    #include "3rd_party/onnxjs/src/wasm-ops/matmul.h"
+    #include "3rd_party/onnxjs/src/wasm-ops/gemm.h"
   #else
     #include <cblas.h>
   #endif // WASM_COMPATIBLE_BLAS
@@ -23,8 +23,7 @@ inline void sgemm(bool transA,
                   int ldc) {
 #if BLAS_FOUND
     #if WASM_COMPATIBLE_BLAS
-        transA; transB; rows_a; rows_b; width; alpha; a; lda; b; ldb; beta; c; ldc; // make compiler happy
-        ABORT("WASM COMPATIBLE SGEMM routine missing");
+        gemm_f32_imp(transA, transB, rows_a, rows_b, width, alpha, a, b, beta, c);
     #else
         cblas_sgemm(CblasRowMajor,
                     transA ? CblasTrans : CblasNoTrans,
