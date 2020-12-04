@@ -236,10 +236,9 @@ else(MSVC)
     set(CMAKE_RDYNAMIC_FLAG "-rdynamic")
   endif(CMAKE_COMPILER_IS_GNUCC)
 
-
-  if(USE_PTHREADS)
+  if(NOT COMPILE_WASM)
     set(PTHREAD_FLAG "-pthread")
-  endif(USE_PTHREADS)
+  endif(NOT COMPILE_WASM)
 
   set(CMAKE_CXX_FLAGS                 "-std=c++11 ${PTHREAD_FLAG} ${CMAKE_GCC_FLAGS} -fPIC ${DISABLE_GLOBALLY} -march=${BUILD_ARCH} ${INTRINSICS}")
   if(COMPILE_WASM)
