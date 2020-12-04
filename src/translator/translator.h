@@ -131,7 +131,12 @@ public:
 
   void run() override {
     fprintf(stderr, "Translate instance run() entered\n");fflush(stderr);
+  #if USE_PTHREADS
     data::BatchGenerator<data::Corpus> bg(corpus_, options_);
+  #else
+    // Set to false to check if wasm builds run further
+    data::BatchGenerator<data::Corpus> bg(corpus_, options_, nullptr, false);
+  #endif
     fprintf(stderr, "RUN 1\n");fflush(stderr);
 
 #if USE_PTHREADS
@@ -262,7 +267,12 @@ public:
                       ? convertTsvToLists(input, options_->get<size_t>("tsv-fields", 1))
                       : std::vector<std::string>({input});
     auto corpus_ = New<data::TextInput>(inputs, srcVocabs_, options_);
+  #if USE_PTHREADS
     data::BatchGenerator<data::TextInput> batchGenerator(corpus_, options_);
+  #else
+    // Set to false to check if wasm builds run further
+    data::BatchGenerator<data::TextInput> batchGenerator(corpus_, options_, nullptr, false);
+  #endif
 
     auto collector = New<StringCollector>(options_->get<bool>("quiet-translation", false));
     auto printer = New<OutputPrinter>(options_, trgVocab_);

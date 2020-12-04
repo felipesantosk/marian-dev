@@ -76,13 +76,8 @@ protected:
 
 private:
   Ptr<BatchStats> stats_;
-  
-#if COMPILE_WASM
-  // TMP set to false to check if wasm builds run further
-  bool runAsync_{false}; // use asynchronous batch pre-fetching by default. We want to be able to disable this when running in library mode and for exception-safety.
-#else
+
   bool runAsync_{true}; // use asynchronous batch pre-fetching by default. We want to be able to disable this when running in library mode and for exception-safety.
-#endif
 
   // state of fetching
   std::deque<BatchPtr> bufferedBatches_; // current swath of batches that next() reads from
