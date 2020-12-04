@@ -35,6 +35,7 @@ native_decoder_only_cmake_cmd += -DCOMPILE_CPU=on
 native_decoder_only_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
 native_decoder_only_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 native_decoder_only_cmake_cmd += -DCOMPILE_WASM=off
+native_decoder_only_cmake_cmd += -DUSE_PTHREADS=off
 
 wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DUSE_MKL=off
