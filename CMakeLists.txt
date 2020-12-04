@@ -45,6 +45,11 @@ if(COMPILE_DECODER_ONLY)
   add_definitions(-DCOMPILE_DECODER_ONLY=1)
 endif(COMPILE_DECODER_ONLY)
 
+if(USE_PTHREADS)
+  # Need to set compile definition as well
+  add_definitions(-DUSE_PTHREADS=1)
+endif()
+
 # fbgemm and sentencepiece are both defined with "non-local" installation targets (the source projects don't define them,
 # so we define them in src\3rd_party\CMakeLists.txt), but that isn't supported until CMake 3.12. Prior to CMake 3.12,
 # targets could only be install(...)ed in the same CMakeLists.txt they were defined. We currently target CMake 3.5.1
