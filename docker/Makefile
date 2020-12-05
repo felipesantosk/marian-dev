@@ -85,8 +85,8 @@ ${make_cmd} || rm CMakeCache.txt)'
 benchmark-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
 benchmark-decoder-only-native: MODEL_DIR = /repo/docker/students/esen/esen.student.tiny11
 benchmark-decoder-only-native: ${HOME}/.ccache
-	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf /repo/build || true) && \
-mkdir -p /repo/docker/students/marian-dev/ && \
+	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/docker/students/marian-dev/ && \
+(rm /repo/docker/students/marian-dev/build || true) && \
 ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
 ./speed.cpu.sh'
