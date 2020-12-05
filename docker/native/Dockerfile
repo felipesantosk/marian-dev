@@ -38,10 +38,6 @@ RUN apt-get install -y \
     unzip \
     wget
 
-ADD . .
-# RUN rm -rf /var/lib/apt/lists/*
-LABEL GITHASH=${GITHASH}
-
 WORKDIR /usr
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.2/cmake-3.17.2-Linux-x86_64.tar.gz -qO-\
     | tar xzf - --strip-components 1
