@@ -48,3 +48,6 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.2/cmake-3.17.2
 
 WORKDIR /
 ENV GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+
+# Necessary for benchmarking
+RUN pip3 install sacrebleu

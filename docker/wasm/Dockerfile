@@ -31,3 +31,6 @@ RUN cp /usr/bin/protoc /usr/opt/protobuf-wasm-lib/dist/bin/protoc
 
 RUN apt-get --no-install-recommends -y install \
     libprotobuf-dev
+
+# Necessary for benchmarking
+RUN pip3 install sacrebleu

@@ -82,6 +82,15 @@ cd ${BUILD_DIR} &&\
 (${native_decoder_only_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
+benchmark-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
+benchmark-decoder-only-native: MODEL_DIR = /repo/docker/students/esen/esen.student.tiny11
+benchmark-decoder-only-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf /repo/build || true) && \
+mkdir -p /repo/docker/students/marian-dev/ && \
+ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
+cd ${MODEL_DIR}/ && \
+./speed.cpu.sh'
+
 # Remove the marian-decoder WASM build dir, forcing a clean compilation attempt
 clean-wasm: BUILD_DIR = /repo/build-wasm-docker
 clean-wasm: ${HOME}/.ccache

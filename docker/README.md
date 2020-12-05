@@ -68,7 +68,21 @@ Note: To run in Chrome, launch Chrome with `  --js-flags="--experimental-wasm-si
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary  --js-flags="--experimental-wasm-simd"
 ```
 
-### Debugging
+## Benchmarking
+
+First, get the relevant models in place:
+```bash
+cd docker/students/esen/
+./download-models.sh
+```
+
+Then:
+
+```bash
+make benchmark-decoder-only-native
+```
+
+## Debugging
 
 Remove the marian-decoder WASM build dir, forcing the next compilation attempt to start from scratch:
 
