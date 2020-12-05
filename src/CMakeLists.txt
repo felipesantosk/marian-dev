@@ -11,6 +11,10 @@ include_directories(3rd_party/intgemm)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rd_party/intgemm)
 include_directories(${CMAKE_BINARY_DIR}/local/include)
 
+if (NOT COMPILE_WASM)
+  set(CALLSTACK_SOURCE 3rd_party/ExceptionWithCallStack.cpp)
+endif(NOT COMPILE_WASM)
+
 if (NOT COMPILE_DECODER_ONLY)
   set(MARIAN_SOURCES
     common/aliases.cpp
@@ -45,7 +49,7 @@ if (NOT COMPILE_DECODER_ONLY)
     data/text_input.cpp
 
     3rd_party/cnpy/cnpy.cpp
-    3rd_party/ExceptionWithCallStack.cpp
+    ${CALLSTACK_SOURCE}
 
     3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
 
@@ -147,7 +151,7 @@ else(NOT COMPILE_DECODER_ONLY)
     data/text_input.cpp
 
     3rd_party/cnpy/cnpy.cpp
-    ###3rd_party/ExceptionWithCallStack.cpp
+    ${CALLSTACK_SOURCE}
 
     3rd_party/onnx/protobuf/onnx-ml.pb-wrapper.cpp
 
