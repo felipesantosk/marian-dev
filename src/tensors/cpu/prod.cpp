@@ -7,15 +7,9 @@
 #include "tensors/tensor.h"
 #include "tensors/tensor_allocator.h"
 
-#if MKL_FOUND
-#include <mkl.h>
-#elif BLAS_FOUND
-  #if WASM_COMPATIBLE_BLAS
-    #include "3rd_party/onnxjs/src/wasm-ops/gemm.h"
-  #else
-    #include <cblas.h>
-  #endif // WASM_COMPATIBLE_BLAS
-#endif
+#if WASM_COMPATIBLE_BLAS
+  #include "3rd_party/onnxjs/src/wasm-ops/gemm.h"
+#endif // WASM_COMPATIBLE_BLAS
 
 #include "integer_common.h"
 #include "prod_blas.h"
@@ -199,7 +193,7 @@ void ProdBatched(marian::Tensor C,
                  float scalar) {
   if (true) {
     ProdBatchedOld(C, allocator, A, B, transA, transB, beta, scalar);
-  } /*
+  }/*
 #if MKL_FOUND
   float alpha = scalar;
 
@@ -275,7 +269,7 @@ void ProdBatched(marian::Tensor C,
 #else
   C; A; B; transA; transB; beta; scalar;
   ABORT("You need to compile with MKL in order to use the CPU version");
-#endif */
+#endif*/
 }
 
 void ProdWithBias(marian::Tensor C,

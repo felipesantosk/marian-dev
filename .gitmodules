@@ -26,3 +26,6 @@
 [submodule "docker/students"]
 	path = docker/students
 	url = https://github.com/browsermt/students
+[submodule "src/3rd_party/oneDNN"]
+	path = src/3rd_party/oneDNN
+	url = https://github.com/oneapi-src/oneDNN.git

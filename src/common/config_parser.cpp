@@ -15,13 +15,9 @@
 #include <stdexcept>
 #include <string>
 
-#if MKL_FOUND
-#include <mkl.h>
-#elif BLAS_FOUND
+#if BLAS_FOUND
   #if WASM_COMPATIBLE_BLAS
     #include "3rd_party/onnxjs/src/wasm-ops/gemm.h"
-  #else
-    #include <cblas.h>
   #endif // WASM_COMPATIBLE_BLAS
 #endif
 

@@ -18,6 +18,12 @@ Compile natively, marian-decoder only:
 make compile-decoder-only-native
 ```
 
+Compile natively, WASM-compatible marian-decoder only:
+
+```bash
+make compile-wasm-compatible-decoder-only-native
+```
+
 Enter a docker container shell for manually running commands:
 
 ```bash
@@ -68,6 +74,15 @@ Note: To run in Chrome, launch Chrome with `  --js-flags="--experimental-wasm-si
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary  --js-flags="--experimental-wasm-simd"
 ```
 
+To compile to WASM without pthreads, the corresponding commands are:
+
+```bash
+make compile-wasm-without-pthreads
+make package-files-wasm-without-pthreads
+make run-wasm-without-pthreads
+open "http://localhost:8001/marian-decoder.html"
+```
+
 ## Benchmarking
 
 First, get the relevant models in place:
@@ -92,20 +107,13 @@ Then open "http://localhost:8001/marian-decoder.html?arguments=-m /repo/models/m
 
 ## Debugging
 
-Remove the marian-decoder WASM build dir, forcing the next compilation attempt to start from scratch:
+Remove the marian-decoder build dir, forcing the next compilation attempt to start from scratch:
 
 ```bash
+make clean-decoder-only-native
+make clean-wasm-compatible-decoder-only-native
 make clean-wasm
-```
-
-To compile to WASM without pthreads, the corresponding commands are:
-
-```bash
 make clean-wasm-without-pthreads
-make compile-wasm-without-pthreads
-make package-files-wasm-without-pthreads
-make run-wasm-without-pthreads
-open "http://localhost:8001/marian-decoder.html"
 ```
 
 Compile only sentencepiece to wasm:

@@ -29,13 +29,15 @@ native_cmake_cmd = ${cmake_cmd}
 native_cmake_cmd += -DCOMPILE_CPU=on
 native_cmake_cmd += -DCOMPILE_WASM=off
 
-native_decoder_only_cmake_cmd = ${cmake_cmd}
-native_decoder_only_cmake_cmd += -DUSE_MKL=off
-native_decoder_only_cmake_cmd += -DCOMPILE_CPU=on
-native_decoder_only_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
-native_decoder_only_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
-native_decoder_only_cmake_cmd += -DCOMPILE_WASM=off
-native_decoder_only_cmake_cmd += -DUSE_PTHREADS=off
+decoder_only_native_cmake_cmd = ${cmake_cmd}
+decoder_only_native_cmake_cmd += -DUSE_MKL=off
+decoder_only_native_cmake_cmd += -DCOMPILE_CPU=on
+decoder_only_native_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
+decoder_only_native_cmake_cmd += -DCOMPILE_WASM=off
+decoder_only_native_cmake_cmd += -DUSE_PTHREADS=off
+
+wasm_compatible_decoder_only_native_cmake_cmd = ${cmake_cmd}
+wasm_compatible_decoder_only_native_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
 
 wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DUSE_MKL=off
@@ -70,21 +72,43 @@ cd ${BUILD_DIR} &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
 # Remove the build directory of native marian-decoder, forcing a clean compilation attempt
-clean-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
+clean-decoder-only-native: BUILD_DIR = /repo/build-decoder-only-native-docker
 clean-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
 
 # Compile native version of marian-decoder only
-compile-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
+compile-decoder-only-native: BUILD_DIR = /repo/build-decoder-only-native-docker
 compile-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
-(${native_decoder_only_cmake_cmd} .. &&\
+(${decoder_only_native_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
-benchmark-decoder-only-native: BUILD_DIR = /repo/build-native-decoder-only-docker
+benchmark-decoder-only-native: BUILD_DIR = /repo/build-decoder-only-native-docker
 benchmark-decoder-only-native: MODEL_DIR = /repo/docker/students/esen/esen.student.tiny11
 benchmark-decoder-only-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/docker/students/marian-dev/ && \
+(rm /repo/docker/students/marian-dev/build || true) && \
+ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
+cd ${MODEL_DIR}/ && \
+./speed.cpu.sh'
+
+# Remove the build directory of native marian-decoder, forcing a clean compilation attempt
+clean-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
+clean-wasm-compatible-decoder-only-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
+
+# Compile native version of marian-decoder only
+compile-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
+compile-wasm-compatible-decoder-only-native: ${HOME}/.ccache
+	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
+cd ${BUILD_DIR} &&\
+(${wasm_compatible_decoder_only_native_cmake_cmd} .. &&\
+${make_cmd} || rm CMakeCache.txt)'
+
+benchmark-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
+benchmark-wasm-compatible-decoder-only-native: MODEL_DIR = /repo/docker/students/esen/esen.student.tiny11
+benchmark-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p /repo/docker/students/marian-dev/ && \
 (rm /repo/docker/students/marian-dev/build || true) && \
 ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
