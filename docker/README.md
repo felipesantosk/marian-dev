@@ -84,13 +84,11 @@ make benchmark-decoder-only-native
 
 For WASM:
 ```bash
-cp students/esen/esen.student.tiny11/speed/cpu.newstest2013.en ../models/
-head -n10 ../models/cpu.newstest2013.en > ../models/cpu.newstest2013.en.top10lines
 make package-files-wasm-without-pthreads
 make run-wasm-without-pthreads
 ```
 
-Then open "http://localhost:8001/marian-decoder.html?arguments=-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm -i /repo/models/cpu.newstest2013.en.top10lines --beam-size 1 --mini-batch 1 --maxi-batch 1 --maxi-batch-sort src -w 128 --skip-cost --cpu-threads 1"
+Then open "http://localhost:8001/marian-decoder.html?arguments=-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm -i /repo/models/newstest2013.es.top10lines --beam-size 1 --mini-batch 1 --maxi-batch 1 --maxi-batch-sort src -w 128 --skip-cost --cpu-threads 1"
 
 ## Debugging
 

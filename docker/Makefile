@@ -109,7 +109,9 @@ rm CMakeCache.txt)'
 package-files-wasm: BUILD_DIR = /repo/build-wasm-docker
 package-files-wasm: MODELS_DIR = /repo/models
 package-files-wasm:
-	${run_on_docker} ${WASM_IMAGE} bash -c 'python3 /emsdk/upstream/emscripten/tools/file_packager.py ${BUILD_DIR}/model-files.data --preload ${MODELS_DIR} --js-output=${BUILD_DIR}/model-files.js'
+	${run_on_docker} ${WASM_IMAGE} bash -c 'sacrebleu -t wmt13 -l es-en --echo src > /repo/models/speed/newstest2013.es && \
+head -n10 /repo/models/speed/newstest2013.es > /repo/models/speed/newstest2013.es.top10lines && \
+python3 /emsdk/upstream/emscripten/tools/file_packager.py ${BUILD_DIR}/model-files.data --preload ${MODELS_DIR} --js-output=${BUILD_DIR}/model-files.js'
 
 # Run WASM-compiled marian-decoder
 run-wasm: BUILD_DIR = /repo/build-wasm-docker
@@ -134,7 +136,9 @@ rm CMakeCache.txt)'
 package-files-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
 package-files-wasm-without-pthreads: MODELS_DIR = /repo/models
 package-files-wasm-without-pthreads:
-	${run_on_docker} ${WASM_IMAGE} bash -c 'python3 /emsdk/upstream/emscripten/tools/file_packager.py ${BUILD_DIR}/model-files.data --preload ${MODELS_DIR} --js-output=${BUILD_DIR}/model-files.js'
+	${run_on_docker} ${WASM_IMAGE} bash -c 'sacrebleu -t wmt13 -l es-en --echo src > /repo/models/newstest2013.es && \
+head -n10 /repo/models/newstest2013.es > /repo/models/newstest2013.es.top10lines && \
+python3 /emsdk/upstream/emscripten/tools/file_packager.py ${BUILD_DIR}/model-files.data --preload ${MODELS_DIR} --js-output=${BUILD_DIR}/model-files.js'
 
 # Run WASM-without-pthreads-compiled marian-decoder
 run-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
