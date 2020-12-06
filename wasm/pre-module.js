@@ -1,6 +1,22 @@
-// Enables setting runtime args via the query string:
-// Module["arguments"] = window.location.search.substr(1).split('%20')
-Module["arguments"] = "-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm --cpu-threads 1".split(' ');
+// Enables setting runtime args via the query string (as long as this is run in the main browser thread and not in a worker)
+let stdinInput = false;
+if (
+  typeof window !== "undefined" &&
+  window.location &&
+  window.location.search
+) {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("stdinInput")) {
+    stdinInput = urlParams.get("stdinInput");
+    console.log("Using stdinInput from URL");
+  }
+  if (urlParams.get("arguments")) {
+    Module["arguments"] = urlParams.get("arguments").split(' ')
+    // Module["arguments"] = urlParams.get("arguments").split('%20');
+    console.log("Using arguments from URL");
+  }
+}
+console.log('stdinInput', stdinInput);
 console.log('Module["arguments"]', Module["arguments"]);
 Module["noInitialRun"] = true;
 Module["onRuntimeInitialized"] = _ => {
@@ -15,6 +31,10 @@ var initStdInOutErr = function() {
   var input = "Hola mundo\n";
   var i = 0;
   function stdin() {
+    if (stdinInput === false) {
+      console.log("STDIN: No stdin input specified");
+      return null;
+    }
     if (i < input.length) {
       var code = input.charCodeAt(i);
       ++i;
