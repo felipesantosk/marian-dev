@@ -95,6 +95,7 @@ Then:
 
 ```bash
 make benchmark-decoder-only-native
+make benchmark-wasm-compatible-decoder-only-native
 ```
 
 For WASM:
