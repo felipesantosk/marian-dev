@@ -25,6 +25,7 @@ cmake_cmd += -DCOMPILE_CUDA=off
 cmake_cmd += -DUSE_DOXYGEN=off
 cmake_cmd += -DUSE_FBGEMM=off
 cmake_cmd += -DCOMPILE_LIBRARY_ONLY=off
+
 native_cmake_cmd = ${cmake_cmd}
 native_cmake_cmd += -DCOMPILE_CPU=on
 native_cmake_cmd += -DCOMPILE_WASM=off
@@ -47,8 +48,10 @@ wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
+
 wasm_without_pthreads_cmake_cmd = ${wasm_cmake_cmd}
 wasm_without_pthreads_cmake_cmd += -DUSE_PTHREADS=off
+
 make_cmd  = make
 #make_cmd += VERBOSE=1
 
@@ -91,14 +94,15 @@ benchmark-decoder-only-native: ${HOME}/.ccache
 (rm /repo/docker/students/marian-dev/build || true) && \
 ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
-./speed.cpu.sh'
+./speed.cpu.sh; \
+(rm /repo/docker/students/marian-dev/build || true)'
 
-# Remove the build directory of native marian-decoder, forcing a clean compilation attempt
+# Remove the build directory of wasm-compatible native marian-decoder, forcing a clean compilation attempt
 clean-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
 clean-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
 
-# Compile native version of marian-decoder only
+# Compile native version of wasm-compatible marian-decoder only
 compile-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
 compile-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
@@ -113,7 +117,8 @@ benchmark-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 (rm /repo/docker/students/marian-dev/build || true) && \
 ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
-./speed.cpu.sh'
+./speed.cpu.sh; \
+(rm /repo/docker/students/marian-dev/build || true)'
 
 # Remove the marian-decoder WASM build dir, forcing a clean compilation attempt
 clean-wasm: BUILD_DIR = /repo/build-wasm-docker
@@ -201,7 +206,6 @@ mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
 ${compile_test_stdin_cmd} &&\
 ${run_on_docker} -p 8009:8009 ${WASM_IMAGE} bash -c 'emrun --no_browser --port 8009 ${BUILD_DIR}'
-
 
 # Start interactive shells for development / debugging purposes
 native-shell: INTERACTIVE_DOCKER_SESSION = -it
