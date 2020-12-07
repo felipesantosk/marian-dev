@@ -25,29 +25,24 @@ cmake_cmd += -DCOMPILE_CUDA=off
 cmake_cmd += -DUSE_DOXYGEN=off
 cmake_cmd += -DUSE_FBGEMM=off
 cmake_cmd += -DCOMPILE_LIBRARY_ONLY=off
+cmake_cmd += -DUSE_MKL=off
+cmake_cmd += -DCOMPILE_CPU=on
 
 native_cmake_cmd = ${cmake_cmd}
-native_cmake_cmd += -DCOMPILE_CPU=on
 native_cmake_cmd += -DCOMPILE_WASM=off
 
-decoder_only_native_cmake_cmd = ${cmake_cmd}
-decoder_only_native_cmake_cmd += -DUSE_MKL=off
-decoder_only_native_cmake_cmd += -DCOMPILE_CPU=on
+decoder_only_native_cmake_cmd = ${native_cmake_cmd}
 decoder_only_native_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
-decoder_only_native_cmake_cmd += -DCOMPILE_WASM=off
-decoder_only_native_cmake_cmd += -DUSE_PTHREADS=off
 
 wasm_compatible_decoder_only_native_cmake_cmd = ${decoder_only_native_cmake_cmd}
 wasm_compatible_decoder_only_native_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
 
 wasm_cmake_cmd = ${cmake_cmd}
-wasm_cmake_cmd += -DUSE_MKL=off
-wasm_cmake_cmd += -DCOMPILE_CPU=on
-wasm_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
-wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_cmake_cmd += -DCOMPILE_WASM=on
 wasm_cmake_cmd += -DProtobuf_INCLUDE_DIR=/usr/opt/protobuf-wasm-lib/dist/include
 wasm_cmake_cmd += -DProtobuf_LIBRARY=/usr/opt/protobuf-wasm-lib/dist/lib/libprotobuf.a
+wasm_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
+wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 
 wasm_without_pthreads_cmake_cmd = ${wasm_cmake_cmd}
 wasm_without_pthreads_cmake_cmd += -DUSE_PTHREADS=off
