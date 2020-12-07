@@ -12,13 +12,13 @@ Compile natively:
 make compile-native
 ```
 
-Compile natively, marian-decoder only:
+Compile natively, marian-decoder only with a wasm-incompatible blas library:
 
 ```bash
 make compile-decoder-only-native
 ```
 
-Compile natively, WASM-compatible marian-decoder only:
+Compile natively, marian-decoder only with a wasm-compatible blas library:
 
 ```bash
 make compile-wasm-compatible-decoder-only-native

@@ -74,7 +74,7 @@ clean-decoder-only-native: BUILD_DIR = /repo/build-decoder-only-native-docker
 clean-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
 
-# Compile native version of marian-decoder only
+# Compile native version of marian-decoder with a wasm-incompatible blas
 compile-decoder-only-native: BUILD_DIR = /repo/build-decoder-only-native-docker
 compile-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
@@ -97,7 +97,7 @@ clean-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatib
 clean-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true)'
 
-# Compile native version of wasm-compatible marian-decoder only
+# Compile native version of marian-decoder with a wasm-compatible blas
 compile-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
 compile-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
