@@ -3,6 +3,7 @@
 #ifdef USE_SENTENCEPIECE
 #include "sentencepiece/src/sentencepiece_processor.h"
 #include "sentencepiece/src/sentencepiece_trainer.h"
+#include "sentencepiece/src/builtin_pb/sentencepiece.pb.h"
 #endif
 
 #include "common/config.h"
@@ -220,6 +221,12 @@ public:
     if(addEOS)
       words.push_back(getEosId());
     return words;
+  }
+
+  sentencepiece::SentencePieceText encodeAsSentencePieceText(const std::string &line) {
+    sentencepiece::SentencePieceText spt;
+    spm_->Encode(line, &spt);
+    return spt;
   }
 
   std::string decode(const Words& sentence, bool /*ignoreEOS*/) const override {
