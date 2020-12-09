@@ -194,6 +194,8 @@ else(MSVC)
     set(EMCC_FLAGS "${EMCC_FLAGS} -s FORCE_FILESYSTEM=1")
     # necessary to allow the total amount of memory to change depending on the demands of the application
     set(EMCC_FLAGS "${EMCC_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
+    # Flag to preserve function names in compiled code when linking (https://emscripten.org/docs/tools_reference/emcc.html#emcc-g)
+    set(EMCC_FLAGS "${EMCC_FLAGS} -g2")
     # run in a worker
     if(USE_PTHREADS)
       set(EMCC_FLAGS "${EMCC_FLAGS} -s PROXY_TO_PTHREAD=1")
