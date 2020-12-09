@@ -109,6 +109,17 @@ make run-wasm-without-pthreads
 
 Then open `http://localhost:8001/marian-decoder.html?arguments=-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm -i /repo/models/newstest2013.es.top300lines --beam-size 1 --mini-batch 32 --maxi-batch 100 --maxi-batch-sort src -w 128 --skip-cost --shortlist /repo/models/lex.s2t 50 50 --cpu-threads 1`
 
+## Compile and benchmark outside of docker
+
+```bash
+make echo-compile-decoder-only-native
+make echo-compile-wasm-compatible-decoder-only-native
+make echo-benchmark-decoder-only-native
+make echo-benchmark-wasm-compatible-decoder-only-native
+```
+
+Copy the output of these commands and run those commands in the marian-dev source directory. Check `./native/Dockerfile` for a hint of what dependencies needs to be installed on your system.
+
 ## Debugging
 
 Remove the marian-decoder build dir, forcing the next compilation attempt to start from scratch:

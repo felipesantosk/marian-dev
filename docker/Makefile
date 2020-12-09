@@ -60,7 +60,7 @@ run_on_docker += ${INTERACTIVE_DOCKER_SESSION}
 ${HOME}/.ccache:
 	mkdir -p $@
 
-# Compile native version
+# Compile full native version
 compile-native: BUILD_DIR = /repo/build-native-docker
 compile-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c '(rm -rf ${BUILD_DIR} || true) && \
@@ -68,6 +68,42 @@ mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
 (${native_cmake_cmd} .. &&\
 ${make_cmd} || rm CMakeCache.txt)'
+
+# Echo the command to compile the native version of marian-decoder with a wasm-incompatible blas
+echo-compile-decoder-only-native: BUILD_DIR = ./build-decoder-only-native
+echo-compile-decoder-only-native: ${HOME}/.ccache
+	echo 'mkdir -p ${BUILD_DIR} && \
+cd ${BUILD_DIR} && \
+(${decoder_only_native_cmake_cmd} .. && \
+${make_cmd} || rm CMakeCache.txt)'
+
+echo-benchmark-decoder-only-native: BUILD_DIR = ./build-decoder-only-native
+echo-benchmark-decoder-only-native: MODEL_DIR = ./docker/students/esen/esen.student.tiny11
+echo-benchmark-decoder-only-native: ${HOME}/.ccache
+	echo 'mkdir -p ./docker/students/marian-dev/ && \
+(rm ./docker/students/marian-dev/build || true) && \
+ln -s "$$PWD/${BUILD_DIR}" ./docker/students/marian-dev/build && \
+cd ${MODEL_DIR}/ && \
+./speed.cpu.sh; cd -; \
+(rm ./docker/students/marian-dev/build || true)'
+
+# Echo the command to compile the native version of marian-decoder with a wasm-compatible blas
+echo-compile-wasm-compatible-decoder-only-native: BUILD_DIR = ./build-wasm-compatible-decoder-only-native
+echo-compile-wasm-compatible-decoder-only-native: ${HOME}/.ccache
+	echo 'mkdir -p ${BUILD_DIR} && \
+cd ${BUILD_DIR} && \
+(${wasm_compatible_decoder_only_native_cmake_cmd} .. && \
+${make_cmd} || rm CMakeCache.txt)'
+
+echo-benchmark-wasm-compatible-decoder-only-native: BUILD_DIR = ./build-wasm-compatible-decoder-only-native
+echo-benchmark-wasm-compatible-decoder-only-native: MODEL_DIR = ./docker/students/esen/esen.student.tiny11
+echo-benchmark-wasm-compatible-decoder-only-native: ${HOME}/.ccache
+	echo 'mkdir -p ./docker/students/marian-dev/ && \
+(rm ./docker/students/marian-dev/build || true) && \
+ln -s "$$PWD/${BUILD_DIR}" ./docker/students/marian-dev/build && \
+cd ${MODEL_DIR}/ && \
+./speed.cpu.sh; cd -; \
+(rm ./docker/students/marian-dev/build || true)'
 
 # Remove the build directory of native marian-decoder, forcing a clean compilation attempt
 clean-decoder-only-native: BUILD_DIR = /repo/build-decoder-only-native-docker
