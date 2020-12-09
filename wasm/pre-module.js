@@ -28,13 +28,13 @@ Module["onRuntimeInitialized"] = _ => {
   }
 };
 var initStdInOutErr = function() {
-  var input = "Hola mundo\n";
   var i = 0;
   function stdin() {
     if (stdinInput === false) {
       console.log("STDIN: No stdin input specified");
       return null;
     }
+    var input = stdinInput + "\n";
     if (i < input.length) {
       var code = input.charCodeAt(i);
       ++i;
