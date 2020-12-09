@@ -50,7 +50,7 @@ var initStdInOutErr = function() {
   function stdout(code) {
     if (code === "\n".charCodeAt(0) && stdoutBuffer !== "") {
       console.log("STDOUT: ", stdoutBuffer);
-      stdoutBufer = "";
+      stdoutBuffer = "";
     } else {
       stdoutBuffer += String.fromCharCode(code);
     }
