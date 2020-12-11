@@ -227,6 +227,12 @@ public:
       SourceToken sourceToken(word, (int)piece.begin(), (int)piece.end());
       sourceTokens.push_back(sourceToken);
     }
+
+    if (addEOS){
+      SourceToken sourceToken(getEosId(), -1, -1);
+      sourceTokens.push_back(sourceToken);
+    }
+
     return sourceTokens;
   }
 

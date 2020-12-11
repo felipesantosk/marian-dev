@@ -8,6 +8,7 @@
 namespace marian {
 
 class IVocab;
+class SourceToken;
 
 // Wrapper around vocabulary types. Can choose underlying
 // vocabulary implementation (vImpl_) based on speficied path
@@ -49,6 +50,10 @@ public:
   Words encode(const std::string& line,
                bool addEOS = true,
                bool inference = false) const;
+  
+  std::vector<SourceToken> encodePreservingSource(const std::string &line, 
+                                                  bool addEOS=true, 
+                                                  bool inference=false) const;
 
   // convert sequence of token ids to single line, can perform detokenization
   std::string decode(const Words& sentence,
