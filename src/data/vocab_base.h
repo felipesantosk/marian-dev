@@ -5,7 +5,15 @@
 #include "common/utils.h"
 #include "common/file_stream.h"
 
+
+
 namespace marian {
+
+  struct SourceToken {
+    Word Id;
+    int begin, end; // Pointer to char* + length?
+    SourceToken(Word Id, int begin, int end): Id(Id), begin(begin), end(end){}
+  };
 
 class IVocab {
 public:
@@ -31,6 +39,10 @@ public:
   virtual Words encode(const std::string& line,
                        bool addEOS = true,
                        bool inference = false) const = 0;
+  
+  virtual std::vector<SourceToken> encodePreservingSource(const std::string &line, bool addEOS=true, bool inference=false) const {
+    ABORT("encodePreservingSource(...) is not implemented for this VocabType.");
+  }
 
   virtual std::string decode(const Words& sentence,
                              bool ignoreEos = true) const = 0;

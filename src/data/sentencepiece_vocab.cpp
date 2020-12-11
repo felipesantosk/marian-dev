@@ -1,18 +1,14 @@
 #include "data/vocab_base.h"
-
-#ifdef USE_SENTENCEPIECE
-#include "sentencepiece/src/sentencepiece_processor.h"
-#include "sentencepiece/src/sentencepiece_trainer.h"
-#endif
+#include "sentencepiece_vocab.h"
 
 #include "common/config.h"
-#include "common/options.h"
-#include "common/logging.h"
 #include "common/filesystem.h"
+#include "common/logging.h"
+#include "common/options.h"
 #include "common/regex.h"
 
-#include <sstream>
 #include <random>
+#include <sstream>
 
 namespace marian {
 
@@ -220,6 +216,18 @@ public:
     if(addEOS)
       words.push_back(getEosId());
     return words;
+  }
+  
+  std::vector<SourceToken> encodePreservingSource(const std::string& line, bool addEOS, bool inference) const override {
+    std::vector<SourceToken> sourceTokens;
+    sentencepiece::SentencePieceText spt;
+    spm_->Encode(line, &spt);
+    for(auto piece: spt.pieces()){
+      Word word = Word::fromWordIndex(piece.id());
+      SourceToken sourceToken(word, (int)piece.begin(), (int)piece.end());
+      sourceTokens.push_back(sourceToken);
+    }
+    return sourceTokens;
   }
 
   std::string decode(const Words& sentence, bool /*ignoreEOS*/) const override {
