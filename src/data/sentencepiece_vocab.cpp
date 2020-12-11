@@ -2,13 +2,13 @@
 #include "sentencepiece_vocab.h"
 
 #include "common/config.h"
-#include "common/filesystem.h"
-#include "common/logging.h"
 #include "common/options.h"
+#include "common/logging.h"
+#include "common/filesystem.h"
 #include "common/regex.h"
 
-#include <random>
 #include <sstream>
+#include <random>
 
 namespace marian {
 
