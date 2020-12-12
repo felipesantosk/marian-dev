@@ -218,22 +218,25 @@ public:
     return words;
   }
   
-  std::vector<SourceToken> encodePreservingSource(const std::string& line, bool addEOS, bool inference) const override {
-    std::vector<SourceToken> sourceTokens;
+  Words encodePreservingSource(const string_view& line, 
+                               std::vector<string_view> &alignments,
+                               bool addEOS, bool inference) const override {
     sentencepiece::SentencePieceText spt;
     spm_->Encode(line, &spt);
+
+    Words words; words.reserve(spt.pieces().size() + addEOS);
     for(auto piece: spt.pieces()){
       Word word = Word::fromWordIndex(piece.id());
-      SourceToken sourceToken(word, (int)piece.begin(), (int)piece.end());
-      sourceTokens.push_back(sourceToken);
+      words.push_back(word);
+      string_view alignment = line.substr(piece.begin(), piece.begin() - piece.end());
+      alignments.push_back(alignment);
     }
 
     if (addEOS){
-      SourceToken sourceToken(getEosId(), -1, -1);
-      sourceTokens.push_back(sourceToken);
+      words.push_back(getEosId());
     }
 
-    return sourceTokens;
+    return words;
   }
 
   std::string decode(const Words& sentence, bool /*ignoreEOS*/) const override {

@@ -5,15 +5,15 @@
 #include "common/utils.h"
 #include "common/file_stream.h"
 
+/* @jerinphilip will work with this to not add build-system troubles and get
+ * cursed later.  
+ */
+
+#include "sentencepiece/third_party/absl/strings/string_view.h"
+typedef absl::string_view string_view;
 
 
 namespace marian {
-
-  struct SourceToken {
-    Word Id;
-    int begin, end; // Pointer to char* + length?
-    SourceToken(Word Id, int begin, int end): Id(Id), begin(begin), end(end){}
-  };
 
 class IVocab {
 public:
@@ -40,7 +40,10 @@ public:
                        bool addEOS = true,
                        bool inference = false) const = 0;
   
-  virtual std::vector<SourceToken> encodePreservingSource(const std::string &line, bool addEOS=true, bool inference=false) const {
+  virtual Words encodePreservingSource(const string_view &line, 
+                                       std::vector<string_view> &alignments,  
+                                       bool addEOS=true, 
+                                       bool inference=false) const {
     ABORT("encodePreservingSource(...) is not implemented for this VocabType.");
   }
 

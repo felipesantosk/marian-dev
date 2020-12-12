@@ -5,10 +5,14 @@
 #include "common/options.h"
 #include "common/file_stream.h"
 
+#include "sentencepiece/third_party/absl/strings/string_view.h"
+typedef absl::string_view string_view;
+
+
 namespace marian {
 
 class IVocab;
-class SourceToken;
+struct SourceToken;
 
 // Wrapper around vocabulary types. Can choose underlying
 // vocabulary implementation (vImpl_) based on speficied path
@@ -51,9 +55,10 @@ public:
                bool addEOS = true,
                bool inference = false) const;
   
-  std::vector<SourceToken> encodePreservingSource(const std::string &line, 
-                                                  bool addEOS=true, 
-                                                  bool inference=false) const;
+  Words encodePreservingSource(const string_view &line, 
+                               std::vector<string_view> &alignments,
+                               bool addEOS=true, 
+                               bool inference=false) const;
 
   // convert sequence of token ids to single line, can perform detokenization
   std::string decode(const Words& sentence,
