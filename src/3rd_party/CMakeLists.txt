@@ -73,7 +73,7 @@ if(USE_SENTENCEPIECE)
 
   add_subdirectory(./sentencepiece)
   include_directories(./sentencepiece)
-
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sentencepiece/third_party/protobuf-lite)
   set_target_properties(spm_encode spm_decode spm_train spm_normalize spm_export_vocab
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
