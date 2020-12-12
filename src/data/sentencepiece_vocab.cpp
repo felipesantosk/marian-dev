@@ -222,7 +222,7 @@ public:
     return words;
   }
 
-  void encode(sentencepiece::util::min_string_view textSpan,
+  void encode(absl::string_view textSpan,
               sentencepiece::SentencePieceText* encoded) const override {
     spm_->Encode(textSpan, encoded);
   }

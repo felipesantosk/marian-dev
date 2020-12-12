@@ -17,8 +17,8 @@
 #  endif
 #else
 namespace sentencepiece {
-namespace util {
-  class min_string_view;
+namespace absl {
+  class string_view;
 }
 class SentencePieceText;
 }
@@ -54,7 +54,7 @@ public:
   virtual std::string decode(const Words& sentence,
                              bool ignoreEos = true) const = 0;
 
-  virtual void encode(sentencepiece::util::min_string_view /*textSpan*/, // span of text to be encoded
+  virtual void encode(absl::string_view /*textSpan*/, // span of text to be encoded
                       sentencepiece::SentencePieceText* /*encoded*/) const {
     ABORT("Not yet implemented for this type of vocabulary.");
   }
