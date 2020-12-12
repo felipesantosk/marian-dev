@@ -102,7 +102,7 @@ jobs:
 
     - name: Compile
       working-directory: build
-      run: make -j2
+      run: make -j2 VERBOSE=1
 
     # TODO: add a flag to CMake to compile unit tests only on CPU
     - name: Run unit tests
