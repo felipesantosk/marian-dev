@@ -46,6 +46,7 @@ wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 
 wasm_without_pthreads_cmake_cmd = ${wasm_cmake_cmd}
 wasm_without_pthreads_cmake_cmd += -DUSE_PTHREADS=off
+wasm_without_pthreads_cmake_cmd += -DCOMPILE_WITHOUT_EXCEPTIONS=off
 
 make_cmd  = make
 #make_cmd += VERBOSE=1
