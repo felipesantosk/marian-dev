@@ -154,34 +154,39 @@ private:
   void makeScalar(const YAML::Node& v) {
     elements_ = 0;
     try {
+      LOG(info, "[fastopt] makeScalar(), Node:{}   NodeType:{}  IsDefined:{}", v, v.Type(), v.IsDefined());
       // Cast node to text first, that works for any scalar node and test that it does not contain single characters
       // that according to YAML could be boolean values. Unfortunately, we do not have any type information at this point. 
       // This means we are disabling support for boolean values in YAML that are expressed with these characters. 
       auto asText = v.as<std::string>();
-      if(asText.size() == 1 && asText.find_first_of("nyNYtfTF") == 0) // @TODO: should we disallow other strings too?
+      if(asText.size() == 1 && asText.find_first_of("nyNYtfTF") == 0) {// @TODO: should we disallow other strings too?
+        LOG(info, " [fastopt] asText exception thrown");
         throw YAML::BadConversion(YAML::Mark()); // get's picked up by next catch block
-
+      }
       value_ = v.as<bool>();
       type_ = NodeType::Bool;
+      LOG(info, " [fastopt] bool");
     } catch(const YAML::BadConversion& /*e*/) {
       try {
         value_ = v.as<int64_t>();
         type_ = NodeType::Int64;
+        LOG(info, " [fastopt] int64_t");
       } catch(const YAML::BadConversion& /*e*/) {
         try {
           value_ = v.as<double>();
           type_ = NodeType::Float64;
+          LOG(info, " [fastopt] double");
         } catch(const YAML::BadConversion& /*e*/) {
-          try { 
+          try {
             value_ = v.as<std::string>();
             type_ = NodeType::String;
+            LOG(info, " [fastopt] string");
           } catch (const YAML::BadConversion& /*e*/) {
             ABORT("Cannot convert YAML node {}", v);
           }
         }
       }
     }
-    
     ABORT_IF(ph_, "ph_ should be undefined");
     ABORT_IF(!array_.empty(), "array_ should be empty");
   }
