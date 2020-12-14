@@ -3,7 +3,6 @@
 #ifdef USE_SENTENCEPIECE
 
 namespace sentencepiece { class SentencePieceText; }
-#define _USE_INTERNAL_STRING_VIEW  
 #include "sentencepiece/src/sentencepiece_processor.h"
 #include "sentencepiece/src/sentencepiece_trainer.h"
 /* https://github.com/google/googletest/issues/1063#issuecomment-332518392 */	
