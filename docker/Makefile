@@ -139,7 +139,7 @@ compile-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	${run_on_docker} ${NATIVE_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} &&\
 cd ${BUILD_DIR} &&\
 (${wasm_compatible_decoder_only_native_cmake_cmd} .. &&\
-${make_cmd} || rm CMakeCache.txt)'
+${make_cmd})'
 
 benchmark-wasm-compatible-decoder-only-native: BUILD_DIR = /repo/build-wasm-compatible-decoder-only-native-docker
 benchmark-wasm-compatible-decoder-only-native: MODEL_DIR = /repo/docker/students/esen/esen.student.tiny11
@@ -191,8 +191,7 @@ compile-wasm-without-pthreads: ${HOME}/.ccache
 	${run_on_docker} ${WASM_IMAGE} bash -c 'mkdir -p ${BUILD_DIR} && \
 cd ${BUILD_DIR} && \
 (emcmake ${wasm_without_pthreads_cmake_cmd} .. && \
-(emmake ${make_cmd}) || \
-rm CMakeCache.txt)'
+(emmake ${make_cmd}))'
 
 # Prepare files to be used with WASM-without-pthreads-compiled marian-decoder
 package-files-wasm-without-pthreads: BUILD_DIR = /repo/build-wasm-without-pthreads-docker
