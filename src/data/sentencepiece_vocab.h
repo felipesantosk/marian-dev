@@ -11,6 +11,9 @@ namespace sentencepiece { class SentencePieceText; }
 # pragma GCC diagnostic push	
 # pragma GCC diagnostic ignored "-Wsuggest-override"	
 #endif	
+/* Current inclusion of SentencePiece structures assume builtin-protobuf hard. 
+ * Future TODO: Make it work with standard protobuf as well.
+ * */
 #include "sentencepiece/src/builtin_pb/sentencepiece.pb.h"	
 #if __GNUC__ >= 5	
 # pragma GCC diagnostic pop	

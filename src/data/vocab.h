@@ -5,14 +5,10 @@
 #include "common/options.h"
 #include "common/file_stream.h"
 
-#include "sentencepiece/third_party/absl/strings/string_view.h"
-typedef absl::string_view string_view;
-
 
 namespace marian {
 
 class IVocab;
-struct SourceToken;
 
 // Wrapper around vocabulary types. Can choose underlying
 // vocabulary implementation (vImpl_) based on speficied path

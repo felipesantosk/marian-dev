@@ -5,14 +5,6 @@
 #include "common/utils.h"
 #include "common/file_stream.h"
 
-/* @jerinphilip will work with this to not add build-system troubles and get
- * cursed later.  
- */
-
-#include "sentencepiece/third_party/absl/strings/string_view.h"
-typedef absl::string_view string_view;
-
-
 namespace marian {
 
 class IVocab {
