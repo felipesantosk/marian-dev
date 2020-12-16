@@ -11,7 +11,6 @@ namespace sentencepiece { class SentencePieceText; }
 # pragma GCC diagnostic push	
 # pragma GCC diagnostic ignored "-Wsuggest-override"	
 #endif	
-#include "sentencepiece/src/sentencepiece.pb.h"	
 #include "sentencepiece/src/builtin_pb/sentencepiece.pb.h"	
 #if __GNUC__ >= 5	
 # pragma GCC diagnostic pop	

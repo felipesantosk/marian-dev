@@ -224,11 +224,12 @@ public:
     sentencepiece::SentencePieceText spt;
     spm_->Encode(line, &spt);
 
-    Words words; words.reserve(spt.pieces().size() + addEOS);
+    Words words; 
+    words.reserve(spt.pieces().size() + addEOS);
     for(auto piece: spt.pieces()){
       Word word = Word::fromWordIndex(piece.id());
       words.push_back(word);
-      string_view alignment = line.substr(piece.begin(), piece.begin() - piece.end());
+      string_view alignment = line.substr(piece.begin(), piece.end() - piece.begin());
       alignments.push_back(alignment);
     }
 

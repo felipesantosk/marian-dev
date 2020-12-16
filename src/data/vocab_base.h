@@ -40,10 +40,10 @@ public:
                        bool addEOS = true,
                        bool inference = false) const = 0;
   
-  virtual Words encodePreservingSource(const string_view &line, 
-                                       std::vector<string_view> &alignments,  
-                                       bool addEOS=true, 
-                                       bool inference=false) const {
+  virtual Words encodePreservingSource(const string_view &, 
+                                       std::vector<string_view> &,  
+                                       bool, 
+                                       bool) const {
     ABORT("encodePreservingSource(...) is not implemented for this VocabType.");
   }
 
