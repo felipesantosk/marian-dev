@@ -40,7 +40,7 @@ jobs:
         # Set the MKLROOT environment variable so that CMake can find MKL.
         # GITHUB_WORKSPACE is an environment variable available on all
         # GitHub-hosted runners
-        echo "$GITHUB_WORKSPACE/mkl" | Out-File -FilePath "MKLROOT" -Encoding utf8 -Append
+        echo "$GITHUB_WORKSPACE/mkl" | Out-File -FilePath $env:MKLROOT -Encoding utf8 -Append
         # echo "::set-env name=MKLROOT::$env:GITHUB_WORKSPACE/mkl"
       shell: powershell
 
