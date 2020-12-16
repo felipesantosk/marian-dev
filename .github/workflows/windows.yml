@@ -33,6 +33,8 @@ jobs:
         submodules: recursive
 
     - name: Download MKL
+      env: 
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       run: |
         # Wget retries downloading files and is faster than Invoke-WebRequest
         C:\msys64\usr\bin\wget.exe -nv ${{ env.MKL_URL }} -O mkl.zip
@@ -44,6 +46,8 @@ jobs:
       shell: powershell
 
     - name: Install CUDA
+      env: 
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       run: |
         .\scripts\ci\install_cuda_windows.ps1 "10.2"
         # Set path to CUDA for subsequent steps so that CMake can find it
