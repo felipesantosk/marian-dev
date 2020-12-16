@@ -69,7 +69,6 @@ if(USE_SENTENCEPIECE)
   # regardless of -DUSE_STATIC_LIBS setting always build sentencepiece statically
   set(SPM_ENABLE_SHARED OFF CACHE BOOL  "Builds shared libaries in addition to static libraries." FORCE)
   set(SPM_ENABLE_TCMALLOC ON CACHE BOOL "Enable TCMalloc if available.")
-  set(SPM_USE_BUILTIN_PROTOBUF OFF CACHE BOOL "Disable use of internal protobuf" FORCE)
 
   if(USE_STATIC_LIBS)
     set(SPM_TCMALLOC_STATIC ON CACHE BOOL "Link static library of TCMALLOC." FORCE)
