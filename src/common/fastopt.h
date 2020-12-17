@@ -154,6 +154,7 @@ private:
   void makeScalar(const YAML::Node& v) {
     elements_ = 0;
     try {
+      LOG(info, "[fastopt] makeScalar(), Node:{}   NodeType:{}  IsDefined:{}", v, v.Type(), v.IsDefined());
       // Cast node to text first, that works for any scalar node and test that it does not contain single characters
       // that according to YAML could be boolean values. Unfortunately, we do not have any type information at this point. 
       // This means we are disabling support for boolean values in YAML that are expressed with these characters. 
@@ -186,7 +187,6 @@ private:
         }
       }
     }
-
     ABORT_IF(ph_, "ph_ should be undefined");
     ABORT_IF(!array_.empty(), "array_ should be empty");
   }
@@ -219,11 +219,9 @@ private:
       array_.emplace_back(nullptr);
     elements_ = keys.size();
 
-    LOG(info, " number of keys (elements_):{}", elements_);
     for(const auto& it : m) {
       uint64_t key = it.first;
       size_t pos = (*ph_)[key];
-      LOG(info, " key's uint64_t:{},   pos:{},   Creating FastOpt with Node:{},   NodeType:{},  IsDefined:{}", key, pos, it.second, it.second.Type(), it.second.IsDefined());
       array_[pos].reset(new FastOpt(it.second, key));
     }
 
@@ -236,7 +234,6 @@ private:
     for(const auto& it : m) {
       auto key = it.first.c_str();
       mi[crc::crc(key)] = it.second;
-      LOG(info, " key's uint64_t:{},   string:{}", crc::crc(key), key);
     }
 
     makeMap(mi);
@@ -249,33 +246,25 @@ private:
   void construct(const YAML::Node& node) {
     switch(node.Type()) {
       case YAML::NodeType::Scalar:
-        LOG(info, "[fastopt] makeScalar() Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
         makeScalar(node);
-        LOG(info, "[fastopt] makeScalar() DONE Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
         break;
       case YAML::NodeType::Sequence: {
-        LOG(info, "[fastopt] makeSequence() Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
         std::vector<YAML::Node> nodesVec;
         for(auto&& n : node)
           nodesVec.push_back(n);
         makeSequence(nodesVec);
-         LOG(info, "[fastopt] makeSequence() DONE Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
       } break;
       case YAML::NodeType::Map: {
-        LOG(info, "[fastopt] makeMap() Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
         std::map<std::string, YAML::Node> nodesMap;
         for(auto& n : node) {
           auto key = n.first.as<std::string>();
           nodesMap[key] = n.second;
         }
         makeMap(nodesMap);
-        LOG(info, "[fastopt] makeMap() DONE Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
       } break;
       case YAML::NodeType::Undefined:
       case YAML::NodeType::Null:
-        LOG(info, "[fastopt] makeNull() Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
         makeNull();
-        LOG(info, "[fastopt] makeNull() DONE Node:{},   NodeType:{},  IsDefined:{}", node, node.Type(), node.IsDefined());
     }
   }
 
@@ -342,22 +331,14 @@ public:
   // Is the hashed key in a map? 
   bool has(uint64_t keyId) const {
     if(isMap() && elements_ > 0) {
-      LOG(info, "  isMap true");
       const auto& ptr = phLookup(keyId);
-      if (ptr)
-          LOG(info, "  ptr->fingerprint_: {}", ptr->fingerprint_);
       return ptr ? ptr->fingerprint_ == keyId : false;
     } else {
-      LOG(info, "  isMap false");
       return false;
     }
   }
 
   bool has(const char* const key) const {
-    size_t key1_size_t = crc::crc(key);
-    uint64_t key1_uint64_t = crc::crc(key);
-    LOG(info, "sizeof(size_t):{}, sizeof(uint64_t):{}", sizeof(size_t), sizeof(uint64_t));
-    LOG(info, " String Key:{}, key1_size_t:{}, key1_uint64_t:{}", key, key1_size_t, key1_uint64_t);
     return has(crc::crc(key));
   }
 
