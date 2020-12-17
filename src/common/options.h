@@ -1,12 +1,7 @@
 #pragma once
 
 // @TODO: to be removed when sure it works
-#ifdef __EMSCRIPTEN__
-  // WASM compiled module (with FASTOPT = 1) creates run-time failures; hence setting it to 0
-  #define FASTOPT 1 // for diagnostics, 0 reverts to old behavior
-#else
-  #define FASTOPT 1 // for diagnostics, 0 reverts to old behavior
-#endif
+#define FASTOPT 1 // for diagnostics, 0 reverts to old behavior
 
 #include <sstream>
 #include <string>
