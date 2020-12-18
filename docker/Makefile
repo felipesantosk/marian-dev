@@ -37,6 +37,7 @@ decoder_only_native_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_compatible_decoder_only_native_cmake_cmd = ${decoder_only_native_cmake_cmd}
 wasm_compatible_decoder_only_native_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
 wasm_compatible_decoder_only_native_cmake_cmd += -DCOMPILE_WITHOUT_EXCEPTIONS=on
+wasm_compatible_decoder_only_native_cmake_cmd += -DCOMPILE_WITHOUT_EXCEPTIONS_STRICT=off
 
 wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DCOMPILE_WASM=on
@@ -48,6 +49,7 @@ wasm_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 wasm_without_pthreads_cmake_cmd = ${wasm_cmake_cmd}
 wasm_without_pthreads_cmake_cmd += -DUSE_PTHREADS=off
 wasm_without_pthreads_cmake_cmd += -DCOMPILE_WITHOUT_EXCEPTIONS=on
+wasm_without_pthreads_cmake_cmd += -DCOMPILE_WITHOUT_EXCEPTIONS_STRICT=off
 
 make_cmd  = make
 #make_cmd += VERBOSE=1
