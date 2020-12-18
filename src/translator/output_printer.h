@@ -100,7 +100,11 @@ private:
 
   float getAlignmentThreshold(const std::string& str) {
 #if WITHOUT_EXCEPTIONS
-    if (str.begin() == str.end()) return 0.f;
+    if (str.begin() == str.end()) {
+      return 0.f;
+    } else {
+      return std::max(std::stof(str), 0.f);
+    }
 #else
     try {
       return std::max(std::stof(str), 0.f);
