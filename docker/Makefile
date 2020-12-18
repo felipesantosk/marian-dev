@@ -36,6 +36,7 @@ decoder_only_native_cmake_cmd += -DCOMPILE_DECODER_ONLY=on
 
 wasm_compatible_decoder_only_native_cmake_cmd = ${decoder_only_native_cmake_cmd}
 wasm_compatible_decoder_only_native_cmake_cmd += -DUSE_WASM_COMPATIBLE_BLAS=on
+wasm_compatible_decoder_only_native_cmake_cmd += -DCOMPILE_WITHOUT_EXCEPTIONS=on
 
 wasm_cmake_cmd = ${cmake_cmd}
 wasm_cmake_cmd += -DCOMPILE_WASM=on
