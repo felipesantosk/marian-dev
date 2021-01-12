@@ -75,6 +75,7 @@ cd ${BUILD_DIR} &&\
 ${make_cmd} || rm CMakeCache.txt)'
 
 # Echo the command to compile the native version of marian-decoder with a wasm-incompatible blas
+.SILENT:
 echo-compile-decoder-only-native: BUILD_DIR = ./build-decoder-only-native
 echo-compile-decoder-only-native: ${HOME}/.ccache
 	echo 'mkdir -p ${BUILD_DIR} && \
@@ -82,6 +83,7 @@ cd ${BUILD_DIR} && \
 (${decoder_only_native_cmake_cmd} .. && \
 ${make_cmd} || rm CMakeCache.txt)'
 
+.SILENT:
 echo-benchmark-decoder-only-native: BUILD_DIR = ./build-decoder-only-native
 echo-benchmark-decoder-only-native: MODEL_DIR = ./docker/students/esen/esen.student.tiny11
 echo-benchmark-decoder-only-native: ${HOME}/.ccache
@@ -93,6 +95,7 @@ cd ${MODEL_DIR}/ && \
 (rm ./docker/students/marian-dev/build || true)'
 
 # Echo the command to compile the native version of marian-decoder with a wasm-compatible blas
+.SILENT:
 echo-compile-wasm-compatible-decoder-only-native: BUILD_DIR = ./build-wasm-compatible-decoder-only-native
 echo-compile-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 	echo 'mkdir -p ${BUILD_DIR} && \
@@ -100,6 +103,7 @@ cd ${BUILD_DIR} && \
 (${wasm_compatible_decoder_only_native_cmake_cmd} .. && \
 ${make_cmd} || rm CMakeCache.txt)'
 
+.SILENT:
 echo-benchmark-wasm-compatible-decoder-only-native: BUILD_DIR = ./build-wasm-compatible-decoder-only-native
 echo-benchmark-wasm-compatible-decoder-only-native: MODEL_DIR = ./docker/students/esen/esen.student.tiny11
 echo-benchmark-wasm-compatible-decoder-only-native: ${HOME}/.ccache

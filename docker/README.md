@@ -48,21 +48,21 @@ make wasm-image
 Compile to wasm:
 
 ```bash
-make compile-wasm
+make compile-wasm-without-pthreads
 ```
 
 Create a directory called `models/` in the repo root and fill it with relevant model files that should be available to the WASM-compiled runtime, then run:
 ```bash
-make package-files-wasm
+make package-files-wasm-without-pthreads
 ```
 
 Run the wasm-compiled code:
 
 ```bash
-make run-wasm
+make run-wasm-without-pthreads
 ```
 
-Then open up `http://localhost:8000/marian-decoder.html?stdinInput=<stdin-input>&arguments=<command-line-args>` in a browser, eg:
+Then open up `http://localhost:8001/marian-decoder.html?stdinInput=<stdin-input>&arguments=<command-line-args>` in a browser, eg:
 
 ```bash
 open "http://localhost:8000/marian-decoder.html?stdinInput=Hola mundo&arguments=-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm --cpu-threads 1"
@@ -74,13 +74,13 @@ Note: To run in Chrome, launch Chrome with `  --js-flags="--experimental-wasm-si
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary  --js-flags="--experimental-wasm-simd"
 ```
 
-To compile to WASM without pthreads, the corresponding commands are:
+To compile to WASM with pthreads (to work on making that work), the corresponding commands are:
 
 ```bash
-make compile-wasm-without-pthreads
-make package-files-wasm-without-pthreads
-make run-wasm-without-pthreads
-open "http://localhost:8001/marian-decoder.html"
+make compile-wasm
+make package-files
+make run-wasm
+open "http://localhost:8000/marian-decoder.html?stdinInput=Hola mundo&arguments=-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm --cpu-threads 1"
 ```
 
 ## Benchmarking
