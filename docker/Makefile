@@ -91,7 +91,7 @@ echo-benchmark-decoder-only-native: ${HOME}/.ccache
 (rm ./docker/students/marian-dev/build || true) && \
 ln -s "$$PWD/${BUILD_DIR}" ./docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
-./speed.cpu.sh; cd -; \
+./speed.cpu.intgemm8bitalpha.sh; cd -; \
 (rm ./docker/students/marian-dev/build || true)'
 
 # Echo the command to compile the native version of marian-decoder with a wasm-compatible blas
@@ -111,7 +111,7 @@ echo-benchmark-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 (rm ./docker/students/marian-dev/build || true) && \
 ln -s "$$PWD/${BUILD_DIR}" ./docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
-./speed.cpu.sh; cd -; \
+./speed.cpu.intgemm8bitalpha.sh; cd -; \
 (rm ./docker/students/marian-dev/build || true)'
 
 # Remove the build directory of native marian-decoder, forcing a clean compilation attempt
@@ -134,7 +134,7 @@ benchmark-decoder-only-native: ${HOME}/.ccache
 (rm /repo/docker/students/marian-dev/build || true) && \
 ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
-./speed.cpu.sh; \
+./speed.cpu.intgemm8bitalpha.sh; \
 (rm /repo/docker/students/marian-dev/build || true)'
 
 # Remove the build directory of wasm-compatible native marian-decoder, forcing a clean compilation attempt
@@ -157,7 +157,7 @@ benchmark-wasm-compatible-decoder-only-native: ${HOME}/.ccache
 (rm /repo/docker/students/marian-dev/build || true) && \
 ln -s ${BUILD_DIR} /repo/docker/students/marian-dev/build && \
 cd ${MODEL_DIR}/ && \
-./speed.cpu.sh; \
+./speed.cpu.intgemm8bitalpha.sh; \
 (rm /repo/docker/students/marian-dev/build || true)'
 
 # Remove the marian-decoder WASM build dir, forcing a clean compilation attempt
