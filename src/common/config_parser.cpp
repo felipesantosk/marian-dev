@@ -143,6 +143,8 @@ void ConfigParser::addOptionsGeneral(cli::CLIWrapper& cli) {
   cli.add<std::string>("--dump-config",
     "Dump current (modified) configuration to stdout and exit. Possible values: full, minimal, expand")
     ->implicit_val("full");
+  cli.add<bool>("--use-legacy-batching",
+      "Use legacy codepath with a for loop of cblas_sgemm, instead of cblas_sgemm_batched.");
   if(mode_ == cli::mode::training) {
     // --sigterm is deliberately not a boolean, to allow for a consistent
     // pattern of specifying custom signal handling in the future.
@@ -672,8 +674,6 @@ void ConfigParser::addOptionsTranslation(cli::CLIWrapper& cli) {
   addSuboptionsBatching(cli);
   addSuboptionsIntgemm(cli);
 
-  cli.add<bool>("--use-legacy-batching",
-      "Use legacy codepath with a for loop of cblas_sgemm, instead of cblas_sgemm_batched.");
   cli.add<bool>("--skip-cost",
       "Ignore model cost during translation, not recommended for beam-size > 1");
   cli.add<bool>("--fp16",
