@@ -272,7 +272,7 @@ public:
         auto quant_mult_b = this->child(3)->val();
 
         float unquant_mult = (-1)*((127.0f / *quant_mult_a->data())*(127.0f / *quant_mult_b->data()))/(127.0f); //Minus one to invert add_ps later on
-        intgemm::Int8Shift::PrepareBias((const int8_t *)b->data(), rows(b), cols(b), intgemm::callbacks::UnquantizeAndAddBiasAndWrite(unquant_mult, bias->data(), val_->data()));
+        intgemm_<Type::int8>::width::PrepareBias((const int8_t *)b->data(), rows(b), cols(b), intgemm::callbacks::UnquantizeAndAddBiasAndWrite(unquant_mult, bias->data(), val_->data()));
       }
       )};
 #else
@@ -303,7 +303,7 @@ public:
     auto quant_mult_b = this->child(2)->val();
 
     float unquant_mult = (-1)*((127.0f / *quant_mult_a->data())*(127.0f / *quant_mult_b->data()))/(127.0f); //Minus one to invert add_ps later on
-    intgemm::Int8Shift::PrepareBias((const int8_t *)b->data(), rows(b), cols(b), intgemm::callbacks::UnquantizeAndWrite(unquant_mult, val_->data()));
+    intgemm_<Type::int8>::width::PrepareBias((const int8_t *)b->data(), rows(b), cols(b), intgemm::callbacks::UnquantizeAndWrite(unquant_mult, val_->data()));
     )};
 #else
     return {NodeOp()};
@@ -410,7 +410,7 @@ public:
                                              cols(child(1)->val()),                                          /*child(2) is bias*/
                                              intgemm::callbacks::UnquantizeAndAddBiasAndWrite(unquant_mult, child(2)->val()->data(), val_->data()));
           } else {
-            intgemm::Int8Shift::Multiply(reinterpret_cast<int8_t *>(child(0)->val()->data()), /*A*/
+            intgemm_<Type::int8>::width::Multiply8Shift(reinterpret_cast<uint8_t *>(child(0)->val()->data()), /*A*/
                                   reinterpret_cast<int8_t *>(child(1)->val()->data()), /*B*/
                                   rows(child(0)->val()),
                                   cols(child(0)->val()),

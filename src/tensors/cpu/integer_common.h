@@ -25,10 +25,12 @@ inline int cols(Shape& shape) { return shape[-1]; }
 inline int rows(Shape& shape) { return shape.elements() / cols(shape); }
 
 template<Type type> struct intgemm_;
-template <> struct intgemm_<Type::int8> {using width = intgemm::Int8;
+template <> struct intgemm_<Type::int8> {using width = intgemm::SSSE3::Kernels8;
+                                         using flexwidth = intgemm::Int8;
                                          using type = int8_t;
                                          constexpr static const Type intgemmType = Type::intgemm8;};
-template <> struct intgemm_<Type::int16> {using width = intgemm::Int16;
+template <> struct intgemm_<Type::int16> {using width = intgemm::SSE2::Kernels16;
+                                          using flexwidth = intgemm::Int16;
                                           using type = int16_t;
                                           constexpr static const Type intgemmType = Type::intgemm16;};
 
