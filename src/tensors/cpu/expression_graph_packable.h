@@ -199,16 +199,10 @@ public:
 
         // Compute QuantMultiplier, compress matrix and store quantMult at the end.
         // We need to tranpose first, because of our architecture independet format requiring a transposed matrix
-        Tensor tmp;
-        if (pName.find("Wemb") != std::string::npos) { //Do not transpose the Wemb matrix. Hacky temporary solution
-          tmp = val;
-        } else {
-          allocator->allocate(tmp, val->shape(), val->type());
-          Transpose10(tmp, val);
-        }
+
         if (gemmElementType == Type::intgemm8) {
           float quantMult = 127.0f / intgemm::MaxAbsolute(val->data(), val->data() + val->shape().elements());
-          intgemm::Int8::PrepareA(tmp->data(), /*input*/
+          intgemm::SSSE3::Kernels8::PrepareB(val->data(), /*input*/
                                 paramMat->data<int8_t>(), /*output*/
                                 quantMult, /*Quant Mult*/
                                 rows(val),
@@ -217,7 +211,7 @@ public:
           *(reinterpret_cast<float *>(paramMat->data<int8_t>() + val->shape().elements())) = quantMult;
         } else {
           float quantMult = 1024.0f;
-          intgemm::Int16::PrepareA(tmp->data(), /*input*/
+          intgemm::SSE2::Kernels16::PrepareB(val->data(), /*input*/
                                 paramMat->data<int16_t>(), /*output*/
                                 quantMult, /*Quant Mult*/
                                 rows(val),
@@ -227,15 +221,34 @@ public:
         }
 
         //Save... Same as the fbgemm case
-        io::Item item;
-        item.name = pName;
-        item.shape = val->shape();
-        item.type = gemmElementType;
+        if (pName.find("Wemb") == std::string::npos) {
+          io::Item item;
+          item.name = pName;
+          item.shape = val->shape();
+          item.type = gemmElementType;
 
-        auto mem = paramMat->memory();
-        item.bytes.resize(mem->size());
-        copy(backend_, mem->data<char>(), mem->data<char>() + mem->size(), item.bytes.data());
-        ioItems.emplace_back(std::move(item));
+          auto mem = paramMat->memory();
+          item.bytes.resize(mem->size());
+          copy(backend_, mem->data<char>(), mem->data<char>() + mem->size(), item.bytes.data());
+          ioItems.emplace_back(std::move(item));
+        } else {
+          // We need to save both quantised and non-qunatised version of Webmb. First the quantised version
+          io::Item item;
+          item.name = pName + "_quantised";
+          item.shape = val->shape();
+          item.type = gemmElementType;
+
+          auto mem = paramMat->memory();
+          item.bytes.resize(mem->size());
+          copy(backend_, mem->data<char>(), mem->data<char>() + mem->size(), item.bytes.data());
+          ioItems.emplace_back(std::move(item));
+
+          // Now the unquantised:
+          io::Item item2;
+          val->get(item2, pName);
+          item2.convert(Type::float32);
+          ioItems.emplace_back(std::move(item2));
+        }
 #else
 ABORT("Packed type {} only supported when compiled with -COMPILE_CPU=on", gemmElementType);
 #endif

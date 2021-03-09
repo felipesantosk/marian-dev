@@ -80,7 +80,17 @@ float quantMult_;
    return {NodeOp(
       quantMult_ = *child(1)->val()->data();
       typedef typename intgemm_<vtype>::type Integer;
-      if (isIntgemm(child(0)->value_type())) {
+      if (name() == "none" && false) { //@TODO fix loading WEMB from memory directly
+        std::cerr << "Name: " << name() << " shape: " << shape() << std::endl;
+        //auto param = child(0)->graph()->params()->get("F0::Wemb_quantised");
+        auto param = std::get<0>(child(0)->graph()->findParams("F0::Wemb_quantised", Type::intgemm8, true));
+        if (param) {
+          std::cerr << "NO null" << std::endl;
+        }
+        //auto param = child(0)->graph()->findParams("Wemb_quantised", Type::intgemm8);
+        val_ = param->val();
+        std::cerr << "Are we actually cheap?" << std::endl;
+      } else if (isIntgemm(child(0)->value_type())) {
         val_ = child(0)->val();
       } else {
         intgemm_<vtype>::width::PrepareB(child(0)->val()->data(), /*input*/

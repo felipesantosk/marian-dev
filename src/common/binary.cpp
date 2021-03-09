@@ -59,12 +59,14 @@ void loadItems(const void* current, std::vector<io::Item>& items, bool mapped) {
 
   for(int i = 0; i < numHeaders; ++i) {
     if(items[i].mapped) { // memory-mapped, hence only set pointer
-      ABORT_IF(isIntgemm(items[i].type), "mmap format not supported for intgemm matrices");
+      //ABORT_IF(isIntgemm(items[i].type), "mmap format not supported for intgemm matrices");
       items[i].ptr = get<char>(current, headers[i].dataLength);
     } else { // reading into item data
       uint64_t len = headers[i].dataLength;
       items[i].bytes.resize(len);
       const char* ptr = get<char>(current, len);
+      /* // This section of the code prepares the width on demand, however since WASM only supports up to SSSE3
+         // We want to have a static format
       if (matchType<intgemm8>(items[i].type)) {
         if (items[i].name.find("Wemb") != std::string::npos) { //HACK HACK HACK THAT HACKS WEMB QUANTIZATION
           items[i].type = Type::float32;
@@ -80,10 +82,10 @@ void loadItems(const void* current, std::vector<io::Item>& items, bool mapped) {
           cpu::integer::unquantizeWemb<Type::int16>(items[i], ptr);
         } else {
           cpu::integer::prepareAndTransposeB<Type::int16>(items[i], ptr);
-        }
-      } else {
-        std::copy(ptr, ptr + len, items[i].bytes.begin());
-      }
+        }*/
+      //} else {
+      std::copy(ptr, ptr + len, items[i].bytes.begin());
+      //}
     }
   }
 }

@@ -309,8 +309,6 @@ public:
     dot.close();
   }
 
-private:
-
   // Find the named parameter and its typed parent parameter object (params) and return both.
   // If the parameter is not found return the parent parameter object that the parameter should be added to.
   // Return [nullptr, nullptr] if no matching parent parameter object exists. 
@@ -340,6 +338,8 @@ private:
 
     return std::make_tuple(p, params);
   }
+
+private:
 
   Expr param(const std::string& pname,
              const Shape& shape,
