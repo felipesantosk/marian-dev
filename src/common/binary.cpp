@@ -58,7 +58,7 @@ void loadItems(const void* current, std::vector<io::Item>& items, bool mapped) {
   get<char>(current, offset);
 
   for(int i = 0; i < numHeaders; ++i) {
-    if(items[i].mapped) { // memory-mapped, hence only set pointer
+    if(items[i].mapped && !isIntgemm(items[i].type) { // memory-mapped, hence only set pointer. At the moment it intgemm matrices can't be used without processing
       ABORT_IF(isIntgemm(items[i].type), "mmap format not supported for intgemm matrices");
       items[i].ptr = get<char>(current, headers[i].dataLength);
     } else { // reading into item data
