@@ -58,10 +58,13 @@ void loadItems(const void* current, std::vector<io::Item>& items, bool mapped) {
   get<char>(current, offset);
 
   for(int i = 0; i < numHeaders; ++i) {
-    if(items[i].mapped && !isIntgemm(items[i].type) { // memory-mapped, hence only set pointer. At the moment it intgemm matrices can't be used without processing
-      ABORT_IF(isIntgemm(items[i].type), "mmap format not supported for intgemm matrices");
+    if(items[i].mapped && !isIntgemm(items[i].type) && false) { // memory-mapped, hence only set pointer. At the moment it intgemm matrices can't be used without processing
+      ABORT_IF(isIntgemm(items[i].type), "mmap format not supported for intgemm matrices yet");
       items[i].ptr = get<char>(current, headers[i].dataLength);
     } else { // reading into item data
+      items[i].mapped = false; // If this is not set, we trigger node_initializers.cpp:186. This one just assigns the memory ptr to the tensor if set to true, but at the moment
+                               // We are preparing some things on demand (the bottom portion of this code). Once we stop doing that, we can use the full mmap codepath
+                               // Also when using the full mmap codepath, we need to uncomment expression_graph.h:582
       uint64_t len = headers[i].dataLength;
       items[i].bytes.resize(len);
       const char* ptr = get<char>(current, len);

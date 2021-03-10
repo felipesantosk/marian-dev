@@ -579,6 +579,7 @@ public:
     // Deal with default parameter set object that might not be a mapped object.
     // This gets assigned during ExpressionGraph::setDevice(...) and by default 
     // would contain allocated tensors. Here we replace it with a mmapped version.
+    /*
     auto it = paramsByElementType_.find(defaultElementType_);
     if(it != paramsByElementType_.end()) {
       // there is parameter object for that type
@@ -600,7 +601,7 @@ public:
         params->init(backend_);
         paramsByElementType_.insert({item.type, params});
       }
-    }
+    }*/
 
     load(items, markReloaded);
   }
