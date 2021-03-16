@@ -78,7 +78,7 @@ To compile to WASM with pthreads (to work on making that work), the correspondin
 
 ```bash
 make compile-wasm
-make package-files
+make package-files-wasm
 make run-wasm
 open "http://localhost:8000/marian-decoder.html?stdinInput=Hola mundo&arguments=-m /repo/models/model.npz -v /repo/models/vocab.esen.spm /repo/models/vocab.esen.spm --cpu-threads 1"
 ```
