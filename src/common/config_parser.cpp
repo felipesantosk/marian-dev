@@ -10,6 +10,7 @@
 #include "common/options.h"
 #include "common/regex.h"
 #include "common/utils.h"
+#include "3rd_party/intgemm/intgemm/types.h"
 #include <algorithm>
 #include <set>
 #include <stdexcept>
@@ -944,6 +945,7 @@ void ConfigParser::addSuboptionsIntgemm(cli::CLIWrapper& cli) {
       "Use lower precision for the GEMM operations only. Supported values: float32, int16, int8, int8shift, int8shiftAlpha, int8shiftAll, int8shiftAlphaAll", "float32");
   cli.add<bool>("--dump-quantmult",
       "Dump the quantization multipliers of activation matrices during an avarage run. To be used to precompute alphas for ---gemm-precision int8shiftAlpha or int8shiftAlphaAll.");
+  cli.add<std::string>("--gemm-highest-arch", "Print highest available cpu arch for intgemm and exit.")->implicit_val("auto");
   // clang-format on
 }
 void ConfigParser::addSuboptionsQuantization(cli::CLIWrapper& cli) {
@@ -992,6 +994,12 @@ Ptr<Options> ConfigParser::parseOptions(int argc, char** argv, bool doValidate) 
 #else // _MSC_VER
     ABORT("build-info is not available on MSVC based build.");
 #endif // _MSC_VER
+  }
+
+  auto gemmInfo = get<std::string>("gemm-highest-arch");
+  if(!gemmInfo.empty() && gemmInfo != "false"){
+      std::cout << static_cast<int>(intgemm::kCPU) << "\n";
+      exit(0);
   }
 
   // get paths to extra config files
