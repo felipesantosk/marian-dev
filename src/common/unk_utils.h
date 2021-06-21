@@ -11,6 +11,8 @@ namespace marian {
                                    std::string &decoded,
                                    std::vector<string_view> &decodedByteRanges
                                    ){
+
+      ABORT_IF(sourceUnkPositions.size() == 0, "It is pointless to copy string if there are no unknowns in between to be replaced.");
       std::string decodedWithReplacement;
       std::vector<std::pair<size_t, size_t>> replacedByteRanges;
 
