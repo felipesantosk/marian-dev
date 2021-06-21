@@ -9,7 +9,7 @@ namespace marian {
                                    const std::vector<string_view> &sourceByteRanges,
                                    const data::WordAlignment &wordAlignment,
                                    std::string &decoded,
-                                   std::vector<string_view> &decodedByteRanges,
+                                   std::vector<string_view> &decodedByteRanges
                                    ){
       std::string decodedWithReplacement;
       std::vector<std::pair<size_t, size_t>> replacedByteRanges;
