@@ -63,13 +63,6 @@ public:
                                std::vector<string_view> &byteRanges,
                                bool ignoreEOS = true) const;
 
-  void replaceUnknownsFromSource(const Words& sentence,
-                          std::string &decoded,
-                          std::vector<string_view> &decodedByteRanges,
-                          const std::vector<size_t> &sourceUnknowns,
-                          const std::vector<string_view> &sourceByteRanges,
-                          const data::WordAlignment &wordAlignment) const;
-
   std::string decode(const Words& sentence,
                      bool ignoreEOS = true) const;
 

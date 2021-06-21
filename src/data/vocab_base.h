@@ -50,15 +50,6 @@ public:
                                        const {
     ABORT("decodeWithByteRanges(...) is not implemented for this VocabType.");
   }
-  virtual void replaceUnknownsFromSource(const Words& /*sentence*/,
-                            std::string & /*decoded*/,
-                            std::vector<string_view> & /*decodedByteRanges*/,
-                            const std::vector<size_t> & /*sourceUnknowns*/,
-                            const std::vector<string_view> & /*sourceByteRanges*/,
-                            const data::WordAlignment /*wordAligment*/){
-    ABORT("replaceUnknownsFromSource(...) is not implemented for this VocabType.");
-  }
-
 
   virtual std::string decode(const Words& sentence,
                              bool ignoreEos = true) const = 0;

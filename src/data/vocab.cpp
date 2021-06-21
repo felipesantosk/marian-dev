@@ -148,15 +148,6 @@ void Vocab::decodeWithByteRanges(const Words &sentence,
                                  bool ignoreEOS) const {
     vImpl_->decodeWithByteRanges(sentence, line, byteRanges, ignoreEOS); }
 
-void Vocab::replaceUnknownsFromSource(const Words& sentence,
-                        std::string &decoded,
-                        std::vector<string_view> &decodedByteRanges,
-                        const std::vector<size_t> &sourceUnknowns,
-                        const std::vector<string_view> &sourceByteRanges,
-                        const data::WordAlignment &wordAlignment)  const {
-    vImpl_->replaceUnknownsFromSource(sentence, decoded, decodedByteRanges, sourceUnknowns, sourceByteRanges, wordAlignment);
-}
-
 // convert sequence of token its to surface form (incl. removng spaces, applying factors)
 // for in-process BLEU validation
 std::string Vocab::surfaceForm(const Words& sentence) const {
