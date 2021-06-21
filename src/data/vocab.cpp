@@ -151,10 +151,10 @@ void Vocab::decodeWithByteRanges(const Words &sentence,
 void Vocab::replaceUnknownsFromSource(const Words& sentence,
                         std::string &decoded,
                         std::vector<string_view> &decodedByteRanges,
-                        const Words &sourceSentence,
+                        const std::vector<size_t> &sourceUnknowns,
                         const std::vector<string_view> &sourceByteRanges,
                         const data::WordAlignment &wordAlignment)  const {
-    vImpl_->replaceUnknownsFromSource(sentence, decoded, decodedByteRanges, sourceSentence, sourceByteRanges, wordAlignment);
+    vImpl_->replaceUnknownsFromSource(sentence, decoded, decodedByteRanges, sourceUnknowns, sourceByteRanges, wordAlignment);
 }
 
 // convert sequence of token its to surface form (incl. removng spaces, applying factors)

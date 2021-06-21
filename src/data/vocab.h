@@ -66,7 +66,7 @@ public:
   void replaceUnknownsFromSource(const Words& sentence,
                           std::string &decoded,
                           std::vector<string_view> &decodedByteRanges,
-                          const Words &sourceSentence,
+                          const std::vector<size_t> &sourceUnknowns,
                           const std::vector<string_view> &sourceByteRanges,
                           const data::WordAlignment &wordAlignment) const;
 

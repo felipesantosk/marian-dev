@@ -284,7 +284,7 @@ public:
   void replaceUnknownsFromSource(const Words& sentence,
                             std::string &decoded,
                             std::vector<string_view> &decodedByteRanges,
-                            const Words &sourceSentence,
+                            const std::vector<size_t> &sourceUnknowns,
                             const std::vector<string_view> &sourceByteRanges,
                             const data::WordAlignment &wordAlignment) const {
     std::string decodedWithReplacement;
@@ -330,7 +330,7 @@ public:
       // irrespective of whether unknown or not. This has to be done after the
       // decoding, as we are copying content as is from source, which is
       // unknown and cannot be decoded otherwise.
-      if (sourceSentence[point.srcPos] == getUnkId()){
+      if (std::binary_search(sourceUnknowns.begin(), sourceUnknowns.end(), point.srcPos)){
         string_view original = decodedByteRanges[activeTgtPos];
         string_view copyFrom = sourceByteRanges[point.srcPos];
         Copy(endOfLastWord, original, copyFrom);
