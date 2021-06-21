@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data/types.h"
+#include "data/alignment.h"
 #include "common/definitions.h"
 #include "common/utils.h"
 #include "common/file_stream.h"
@@ -48,6 +49,14 @@ public:
                                        bool /*ignoreEOS*/)
                                        const {
     ABORT("decodeWithByteRanges(...) is not implemented for this VocabType.");
+  }
+  virtual void replaceUnknownsFromSource(const Words& /*sentence*/,
+                            std::string & /*decoded*/,
+                            std::vector<string_view> & /*decodedByteRanges*/,
+                            const Words & /*sourceSentence*/,
+                            const std::vector<string_view> & /*sourceByteRanges*/,
+                            const data::WordAlignment /*wordAligment*/){
+    ABORT("replaceUnknownsFromSource(...) is not implemented for this VocabType.");
   }
 
 
