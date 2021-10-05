@@ -1,7 +1,9 @@
 #include "graph/expression_graph.h"
 #include "tensors/tensor_operators.h"
 #include <stack>
+#include <unordered_map>
 #include <sstream>
+#include <vector>
 
 namespace marian {
 
@@ -76,27 +78,61 @@ void ExpressionGraph::pprintTensors() const {
   struct TraceEntry {
       size_t depth;
       Expr expr;
+      Expr parent;
   };
 
   std::stack<TraceEntry> trace;
+  std::unordered_map<Expr, bool> visited;
+  std::vector<TraceEntry> visitOrder;
+
+  // The following does not work. 
+  std::cout << "TopNodes: " << topNodes_.size() << "\n";
   for(auto root: topNodes_){
-      trace.push({.depth = 0, .expr = root});
+      // trace.push({.depth = 0, .expr = root});
   }
 
-  // Assuming directional edges, we don't need a visited flag(?)
-  while (!trace.empty()){
-      TraceEntry entry = trace.top();
-      trace.pop();
-      for(auto child: (entry.expr)->children()){
-          trace.push({.depth = entry.depth + 1, .expr = child});
+  // Let's try forwardTape
+  // assert(!nodesForward_.empty());
+  for(auto p = nodesForward_.begin(); p != nodesForward_.end(); ++p){
+      auto &e = *p;
+      if (!visited[e]){
+          visited[e] = true;
+          trace.push({.depth = 0, .expr = e, .parent = nullptr});
+          // Assuming directional edges, we don't need a visited flag(?)
+          while (!trace.empty()){
+
+              TraceEntry entry = trace.top();
+              visitOrder.push_back(entry);
+              trace.pop();
+
+
+              auto children = (entry.expr)->children();
+              for(auto q = children.rbegin(); q!= children.rend(); ++q){
+                  auto &child = *q;
+                  if (!visited[child]){
+                      visited[child] = true;
+                      trace.push({.depth = entry.depth + 1, .expr = child, .parent = entry.expr});
+                  }
+              }
+          }
       }
   }
+
+  for(auto &entry: visitOrder){
+      if ((entry.expr)->name() != "none"){
+         std::cout << entry.depth << " " << (entry.expr)->name() << " ";
+         if (entry.parent){
+             std::cout << "(Parent: " << (entry.parent)->name() << ")";
+         }
+         std::cout << "\n";
+      }
+  }
+
 
 }
 
 void ExpressionGraph::forwardNext() {
   pprintTensors();
-
   // @TODO: check if allocation works properly
   tensors_->clearShorttermMemory();
 
