@@ -7,6 +7,7 @@
 
 namespace marian {
 
+
 ExpressionGraph::ExpressionGraph(bool inference)
   : inferenceOnly_(inference),
     backend_(nullptr) {}

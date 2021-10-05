@@ -19,10 +19,57 @@ namespace marian {
 template <class T, typename... Args>
 Expr Expression(Args&&... args);
 
+/// This is experimental code, expect horrible approaches. The question being addressed is can this method share backends?
+/// This injection cleans up after itself(?)
+class OwningAllocator {
+    public:
+      // Additional constructor. Share a workspace?
+      OwningAllocator(Ptr<TensorAllocator> allocator): actualAllocator_(allocator) {}
+      OwningAllocator(Ptr<Backend> backend): actualAllocator_(New<TensorAllocator>(backend)) {}
+      OwningAllocator(Ptr<Backend> backend, Ptr<Device> device): actualAllocator_(New<TensorAllocator>(backend, device)) {}
+
+      ~OwningAllocator(){
+          for(auto tensor: allocations_){
+              actualAllocator_->free(tensor);
+          }
+      }
+
+      OwningAllocator(const OwningAllocator&) = delete;
+      OwningAllocator& operator=(const OwningAllocator&) = delete;
+
+      void allocate(/*out*/ Tensor& t, Shape shape, Type type = Type::float32) {
+          actualAllocator_->allocate(t, shape, type);
+
+          // Tensor&? t is an intrusive pointer, reference to an intrusive pointer. 
+          // I can't push this by value...? In which case, we'll hold pointer. 
+          allocations_.insert(t);
+      }
+
+      void clear() { actualAllocator_->clear(); }
+      void reserve(size_t bytes){ actualAllocator_->reserve(bytes); }
+      void free(const Tensor& t) { actualAllocator_->free(t); allocations_.erase(t); }
+      void throwAtReallocation(bool throwAtRealloc){ actualAllocator_->throwAtReallocation(throwAtRealloc); }
+      Ptr<Allocator> allocator() { return actualAllocator_->allocator(); }
+      Ptr<TensorAllocator> getTensorAllocator() { return actualAllocator_; }
+
+    private:
+        Ptr<TensorAllocator> actualAllocator_;
+        std::unordered_set<Tensor> allocations_; // Tensor = IPtr<TensorBase>
+        
+};
+
 class Tensors {
+#define OWNINGALLOC (1)
+
+#if(OWNINGALLOC)
+using TensorAllocatorType = OwningAllocator;
+#else
+using TensorAllocatorType = TensorAllocator;
+#endif 
+
 private:
-  Ptr<TensorAllocator> tensors_;
-  Ptr<TensorAllocator> cache_;
+  Ptr<TensorAllocatorType> tensors_;
+  Ptr<TensorAllocatorType> cache_;
 
   typedef std::unordered_map<size_t, std::vector<WExpr>> WeakMemory;
   typedef std::unordered_map<size_t, std::vector<Expr>> Memory;
@@ -34,20 +81,22 @@ private:
 
 public:
   Tensors(Ptr<Backend> backend)
-      : tensors_(New<TensorAllocator>(backend)),
-        cache_(New<TensorAllocator>(backend)),
+      : tensors_(New<TensorAllocatorType>(backend)),
+        cache_(New<TensorAllocatorType>(backend)),
         shortterm_(New<WeakMemory>()),
         longterm_(New<Memory>())/*,
         midterm_(New<ShortlistMemory>())*/ {}
 
   Tensors(Ptr<Backend> backend, Ptr<Device> device)
-      : tensors_(New<TensorAllocator>(backend, device)),
-        cache_(New<TensorAllocator>(backend)),
+      : tensors_(New<TensorAllocatorType>(backend, device)),
+        cache_(New<TensorAllocatorType>(backend)),
         shortterm_(New<WeakMemory>()),
         longterm_(New<Memory>())/*,
         midterm_(New<ShortlistMemory>())*/ {}
 
-  void reserve(size_t bytes) { tensors_->reserve(bytes); }
+  void reserve(size_t bytes) { 
+      tensors_->reserve(bytes); 
+  }; 
 
   void throwAtReallocation(bool throwAtRealloc) {
     tensors_->throwAtReallocation(throwAtRealloc);
@@ -70,7 +119,13 @@ public:
   void free(const Tensor& tensor) { tensors_->free(tensor); }
 
   Ptr<Allocator>       getAllocator() { return tensors_->allocator(); }
-  Ptr<TensorAllocator> getTensorAllocator() { return tensors_; }
+  Ptr<TensorAllocator> getTensorAllocator() { 
+#if(OWNINGALLOC)
+      return tensors_->getTensorAllocator();
+#else
+      return tensors_; 
+#endif
+  };
 
   Expr findOrRemember(Expr node) {
     size_t hash = node->hash();
@@ -152,7 +207,10 @@ public:
   void clearShorttermMemory() { shortterm_->clear(); }
 
   void clearLongtermMemory() { longterm_->clear(); }
+
 };
+
+
 
 typedef std::map<Type, Ptr<Parameters>> ElementTypeParamsMap; // keep it sorted, hence map not unordered map
 
@@ -165,8 +223,6 @@ protected:  // (these are protected, not private, for ONNX exporting)
   std::list<Expr> nodesForward_;
   std::list<Expr> nodesBackward_;
 
-  // Holds memory and expressions that correspond to temporary expressions.
-  // This gets cleared before a new graph is built.
   Ptr<Tensors> tensors_;
 private:
 
