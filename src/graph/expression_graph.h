@@ -303,6 +303,8 @@ public:
     dot.close();
   }
 
+  void pprintTensors() const;
+
 private:
 
   // Find the named parameter and its typed parent parameter object (params) and return both.

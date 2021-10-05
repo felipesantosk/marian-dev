@@ -1,6 +1,6 @@
 #include "graph/expression_graph.h"
 #include "tensors/tensor_operators.h"
-
+#include <stack>
 #include <sstream>
 
 namespace marian {
@@ -70,7 +70,33 @@ void createSubtape(Expr node) {
   node->setSubtape(subtape);
 }
 
+void ExpressionGraph::pprintTensors() const {
+  // The string has to be constructed recursively. So let's work with a stack
+  // here to accomodate things.
+  struct TraceEntry {
+      size_t depth;
+      Expr expr;
+  };
+
+  std::stack<TraceEntry> trace;
+  for(auto root: topNodes_){
+      trace.push({.depth = 0, .expr = root});
+  }
+
+  // Assuming directional edges, we don't need a visited flag(?)
+  while (!trace.empty()){
+      TraceEntry entry = trace.top();
+      trace.pop();
+      for(auto child: (entry.expr)->children()){
+          trace.push({.depth = entry.depth + 1, .expr = child});
+      }
+  }
+
+}
+
 void ExpressionGraph::forwardNext() {
+  pprintTensors();
+
   // @TODO: check if allocation works properly
   tensors_->clearShorttermMemory();
 
