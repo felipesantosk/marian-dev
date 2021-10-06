@@ -23,68 +23,86 @@ Expr Expression(Args&&... args);
 // addressed is can this method share static-workspaces?  This injection cleans
 // up after itself(?) 
 class OwningAllocator {
-    public:
-      // Additional constructor. Share a workspace? Allocator is supplied externally.
-      // There can only be a finite number of "workspaces", which
-      // are often associated with a gpu-worker (upper bound number of GPUs?) and
-      // cpu-worker, upper bounded by number of workers. Something external can control this with a TensorAllocator.
-      OwningAllocator(const std::string &name, Ptr<TensorAllocator> allocator): name_(name), actualAllocator_(allocator) {}
-      OwningAllocator(const std::string &name, Ptr<Backend> backend): name_(name), actualAllocator_(New<TensorAllocator>(backend)) {}
-      OwningAllocator(const std::string &name, Ptr<Backend> backend, Ptr<Device> device): name_(name), actualAllocator_(New<TensorAllocator>(backend, device)) {}
+public:
+  // Additional constructor. Share a workspace? Allocator is supplied externally.
+  // There can only be a finite number of "workspaces", which
+  // are often associated with a gpu-worker (upper bound number of GPUs?) and
+  // cpu-worker, upper bounded by number of workers. Something external can control this with a TensorAllocator.
+  OwningAllocator(const std::string &name, Ptr<TensorAllocator> allocator)
+      : name_(name), actualAllocator_(allocator) {}
 
-      ~OwningAllocator(){
-          for(auto tensor: allocations_){
-              actualAllocator_->free(tensor);
-          }
+  // The following two constructors just wrap around the usual TensorAllocator.
+  OwningAllocator(const std::string &name, Ptr<Backend> backend)
+      : name_(name), actualAllocator_(New<TensorAllocator>(backend)) {}
+
+  OwningAllocator(const std::string &name, Ptr<Backend> backend, Ptr<Device> device)
+      : name_(name), actualAllocator_(New<TensorAllocator>(backend, device)) {}
+
+  ~OwningAllocator(){
+      // We know which tensors we allocated. The life of those tensors end
+      // here. Long live the workspace, which we have separated.
+      for(auto tensor: allocations_){
+          actualAllocator_->free(tensor);
       }
+  }
 
-      OwningAllocator(const OwningAllocator&) = delete;
-      OwningAllocator& operator=(const OwningAllocator&) = delete;
+  OwningAllocator(const OwningAllocator&) = delete;
+  OwningAllocator& operator=(const OwningAllocator&) = delete;
 
-      void allocate(/*out*/ Tensor& t, Shape shape, Type type = Type::float32) {
-          actualAllocator_->allocate(t, shape, type);
+  void allocate(/*out*/ Tensor& t, Shape shape, Type type = Type::float32) {
+    actualAllocator_->allocate(t, shape, type);
 
-          // Tensor&? t is an intrusive pointer, reference to an intrusive pointer. 
-          // I can't push this by value...? In which case, we'll hold pointer. 
-          allocations_.insert(t);
-      }
+    // Mark that we allocated this tensor.
+    allocations_.insert(t);
+  }
 
-      void clear() { actualAllocator_->clear(); }
-      void reserve(size_t bytes){ actualAllocator_->reserve(bytes); }
-      void free(const Tensor& t) { 
-          // Free the tensor.
-          actualAllocator_->free(t); 
-          allocations_.erase(t); 
-          std::cout << "Removing from " << name_ << " ";
+  void clear() { actualAllocator_->clear(); }
+  void reserve(size_t bytes){ actualAllocator_->reserve(bytes); }
+  void free(const Tensor& t) { 
+      // Free the tensor.
+      actualAllocator_->free(t); 
+      std::cout << "Removing from " << name_ << " ";
+      
+      // Mark that the tensor is deallocated to avoid double free in the destructor.
+      allocations_.erase(t); 
+
+      // The followign should be 1 or maybe few more, from the call-site and ahead.
+      std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
+
+  }
+
+  // Logs tensors that are still active. This is used to diagnose whether
+  // memory has been cleaned up after after a model / in between
+  // translations.
+  void logActive(){
+      std::cout << name_ << "has the following tensors active: \n";
+      for(auto t: allocations_){
           std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
-
       }
+  }
 
-      void logActive(){
-          std::cout << name_ << "has the following tensors active: \n";
-          for(auto t: allocations_){
-              std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
-          }
-      }
+  void throwAtReallocation(bool throwAtRealloc){ actualAllocator_->throwAtReallocation(throwAtRealloc); }
+  Ptr<Allocator> allocator() { return actualAllocator_->allocator(); }
+  Ptr<TensorAllocator> getTensorAllocator() { return actualAllocator_; }
 
-      void throwAtReallocation(bool throwAtRealloc){ actualAllocator_->throwAtReallocation(throwAtRealloc); }
-      Ptr<Allocator> allocator() { return actualAllocator_->allocator(); }
-      Ptr<TensorAllocator> getTensorAllocator() { return actualAllocator_; }
+private:
+  // Hashes a pointer to an object using the address the pointer points
+  // to. If two pointers point to the same address, / they hash to the same
+  // value.  This way we skip any hashing tricks marian already has in
+  // place. @jerinphilip has been unable to track the std::hash
+  // specialization or whatever down.
+  template <class T>
+  struct HashIPtr {
+    size_t operator()(const IPtr<T>& t) const {
+      size_t address = reinterpret_cast<size_t>(t.get());
+      return std::hash<size_t>()(address);
+    }
+  };
 
-    private:
-      /// Hashes a pointer to an object using the address the pointer points to. If two pointers point to the same address,
-      /// they hash to the same value.  
-      template <class T>
-      struct HashIPtr {
-        size_t operator()(const IPtr<T>& t) const {
-          size_t address = reinterpret_cast<size_t>(t.get());
-          return std::hash<size_t>()(address);
-        }
-      };
-
-      const std::string name_; // @jerinphilip wants to know which ones are allocated/deallocated during the process. THIS IS NOT GOOD
-      Ptr<TensorAllocator> actualAllocator_;
-      std::unordered_set<Tensor, HashIPtr<TensorBase>> allocations_; // Tensor = IPtr<TensorBase>
+  // @jerinphilip wants to know which ones are allocated/deallocated during the process. THIS IS NOT GOOD
+  const std::string name_; 
+  Ptr<TensorAllocator> actualAllocator_;
+  std::unordered_set<Tensor, HashIPtr<TensorBase>> allocations_; // Tensor = IPtr<TensorBase>
         
 };
 
@@ -118,15 +136,15 @@ public:
         longterm_(New<Memory>())/*,
         midterm_(New<ShortlistMemory>())*/ {}
 
+  // We introduce this third constructor, where we can share a workspace
+  // (static preallocated storage) from a worker which comes from elsewhere. 
   Tensors(Ptr<TensorAllocator> tensors, Ptr<TensorAllocator> cache)
       : tensors_(New<TensorAllocatorType>("tensors_", tensors)), 
         cache_(New<TensorAllocatorType>("cache_", cache)), 
         shortterm_(New<WeakMemory>()), 
         longterm_(New<Memory>()) {}
 
-  void reserve(size_t bytes) { 
-      tensors_->reserve(bytes); 
-  }; 
+  void reserve(size_t bytes) { tensors_->reserve(bytes); }; 
 
   void throwAtReallocation(bool throwAtRealloc) {
     tensors_->throwAtReallocation(throwAtRealloc);
@@ -154,9 +172,7 @@ public:
   void free(const Tensor& tensor) { tensors_->free(tensor); }
 
   Ptr<Allocator>       getAllocator() { return tensors_->allocator(); }
-  Ptr<TensorAllocator> getTensorAllocator() { 
-      return tensors_->getTensorAllocator();
-  }
+  Ptr<TensorAllocator> getTensorAllocator() { return tensors_->getTensorAllocator(); }
 
   Expr findOrRemember(Expr node) {
     Expr rememberingThingsHurt = nullptr;
