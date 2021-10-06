@@ -21,30 +21,29 @@ Expr Expression(Args&&... args);
 
 // This is experimental code, expect horrible approaches. The question being
 // addressed is can this method share static-workspaces?  This injection cleans
-// up after itself(?)
+// up after itself(?) 
 class OwningAllocator {
 public:
   // Additional constructor. Share a workspace? Allocator is supplied externally.
   // There can only be a finite number of "workspaces", which
   // are often associated with a gpu-worker (upper bound number of GPUs?) and
-  // cpu-worker, upper bounded by number of workers. Something external can control this with a
-  // TensorAllocator.
-  OwningAllocator(const std::string& name, Ptr<TensorAllocator> allocator)
+  // cpu-worker, upper bounded by number of workers. Something external can control this with a TensorAllocator.
+  OwningAllocator(const std::string &name, Ptr<TensorAllocator> allocator)
       : name_(name), actualAllocator_(allocator) {}
 
   // The following two constructors just wrap around the usual TensorAllocator.
-  OwningAllocator(const std::string& name, Ptr<Backend> backend)
+  OwningAllocator(const std::string &name, Ptr<Backend> backend)
       : name_(name), actualAllocator_(New<TensorAllocator>(backend)) {}
 
-  OwningAllocator(const std::string& name, Ptr<Backend> backend, Ptr<Device> device)
+  OwningAllocator(const std::string &name, Ptr<Backend> backend, Ptr<Device> device)
       : name_(name), actualAllocator_(New<TensorAllocator>(backend, device)) {}
 
-  ~OwningAllocator() {
-    // We know which tensors we allocated. The life of those tensors end
-    // here. Long live the workspace, which we have separated.
-    for(auto tensor : allocations_) {
-      actualAllocator_->free(tensor);
-    }
+  ~OwningAllocator(){
+      // We know which tensors we allocated. The life of those tensors end
+      // here. Long live the workspace, which we have separated.
+      for(auto tensor: allocations_){
+          actualAllocator_->free(tensor);
+      }
   }
 
   OwningAllocator(const OwningAllocator&) = delete;
@@ -58,32 +57,31 @@ public:
   }
 
   void clear() { actualAllocator_->clear(); }
-  void reserve(size_t bytes) { actualAllocator_->reserve(bytes); }
-  void free(const Tensor& t) {
-    // Free the tensor.
-    actualAllocator_->free(t);
-    std::cout << "Removing from " << name_ << " ";
+  void reserve(size_t bytes){ actualAllocator_->reserve(bytes); }
+  void free(const Tensor& t) { 
+      // Free the tensor.
+      actualAllocator_->free(t); 
+      std::cout << "Removing from " << name_ << " ";
+      
+      // Mark that the tensor is deallocated to avoid double free in the destructor.
+      allocations_.erase(t); 
 
-    // Mark that the tensor is deallocated to avoid double free in the destructor.
-    allocations_.erase(t);
+      // The followign should be 1 or maybe few more, from the call-site and ahead.
+      std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
 
-    // The followign should be 1 or maybe few more, from the call-site and ahead.
-    std::cout << reinterpret_cast<size_t>(t.get()) << ": " << t.useCount() << "\n";
   }
 
   // Logs tensors that are still active. This is used to diagnose whether
   // memory has been cleaned up after after a model / in between
   // translations.
-  void logActive() {
-    std::cout << name_ << "has the following tensors active: \n";
-    for(auto t : allocations_) {
-      std::cout << reinterpret_cast<size_t>(t.get()) << ": " << t.useCount() << "\n";
-    }
+  void logActive(){
+      std::cout << name_ << "has the following tensors active: \n";
+      for(auto t: allocations_){
+          std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
+      }
   }
 
-  void throwAtReallocation(bool throwAtRealloc) {
-    actualAllocator_->throwAtReallocation(throwAtRealloc);
-  }
+  void throwAtReallocation(bool throwAtRealloc){ actualAllocator_->throwAtReallocation(throwAtRealloc); }
   Ptr<Allocator> allocator() { return actualAllocator_->allocator(); }
   Ptr<TensorAllocator> getTensorAllocator() { return actualAllocator_; }
 
@@ -101,15 +99,15 @@ private:
     }
   };
 
-  // @jerinphilip wants to know which ones are allocated/deallocated during the process. THIS IS NOT
-  // GOOD
-  const std::string name_;
+  // @jerinphilip wants to know which ones are allocated/deallocated during the process. THIS IS NOT GOOD
+  const std::string name_; 
   Ptr<TensorAllocator> actualAllocator_;
-  std::unordered_set<Tensor, HashIPtr<TensorBase>> allocations_;  // Tensor = IPtr<TensorBase>
+  std::unordered_set<Tensor, HashIPtr<TensorBase>> allocations_; // Tensor = IPtr<TensorBase>
+        
 };
 
 class Tensors {
-  using TensorAllocatorType = OwningAllocator;
+using TensorAllocatorType = OwningAllocator;
 
 private:
   Ptr<TensorAllocatorType> tensors_;
@@ -117,44 +115,44 @@ private:
 
   typedef std::unordered_map<size_t, std::vector<WExpr>> WeakMemory;
   typedef std::unordered_map<size_t, std::vector<Expr>> Memory;
-  // typedef std::unordered_map<std::string, Expr> ShortlistMemory; //Because... yeah
+  //typedef std::unordered_map<std::string, Expr> ShortlistMemory; //Because... yeah
 
   Ptr<WeakMemory> shortterm_;
   Ptr<Memory> longterm_;
-  // Ptr<ShortlistMemory> midterm_;
+  //Ptr<ShortlistMemory> midterm_;
 
 public:
   Tensors(Ptr<Backend> backend)
       : tensors_(New<TensorAllocatorType>("tensors_", backend)),
         cache_(New<TensorAllocatorType>("cache_", backend)),
         shortterm_(New<WeakMemory>()),
-        longterm_(New<Memory>()) /*,
-         midterm_(New<ShortlistMemory>())*/
-  {}
+        longterm_(New<Memory>())/*,
+        midterm_(New<ShortlistMemory>())*/ {}
 
   Tensors(Ptr<Backend> backend, Ptr<Device> device)
       : tensors_(New<TensorAllocatorType>("tensors_", backend, device)),
         cache_(New<TensorAllocatorType>("cache_", backend)),
         shortterm_(New<WeakMemory>()),
-        longterm_(New<Memory>()) /*,
-         midterm_(New<ShortlistMemory>())*/
-  {}
+        longterm_(New<Memory>())/*,
+        midterm_(New<ShortlistMemory>())*/ {}
 
   // We introduce this third constructor, where we can share a workspace
-  // (static preallocated storage) from a worker which comes from elsewhere.
+  // (static preallocated storage) from a worker which comes from elsewhere. 
   Tensors(Ptr<TensorAllocator> tensors, Ptr<TensorAllocator> cache)
-      : tensors_(New<TensorAllocatorType>("tensors_", tensors)),
-        cache_(New<TensorAllocatorType>("cache_", cache)),
-        shortterm_(New<WeakMemory>()),
+      : tensors_(New<TensorAllocatorType>("tensors_", tensors)), 
+        cache_(New<TensorAllocatorType>("cache_", cache)), 
+        shortterm_(New<WeakMemory>()), 
         longterm_(New<Memory>()) {}
 
-  void reserve(size_t bytes) { tensors_->reserve(bytes); };
+  void reserve(size_t bytes) { tensors_->reserve(bytes); }; 
 
-  void throwAtReallocation(bool throwAtRealloc) { tensors_->throwAtReallocation(throwAtRealloc); }
+  void throwAtReallocation(bool throwAtRealloc) {
+    tensors_->throwAtReallocation(throwAtRealloc);
+  }
 
-  void logActive() {
-    tensors_->logActive();
-    cache_->logActive();
+  void logActive(){
+      tensors_->logActive();
+      cache_->logActive();
   }
 
   void allocateForward(Expr node) {
@@ -173,14 +171,12 @@ public:
 
   void free(const Tensor& tensor) { tensors_->free(tensor); }
 
-  Ptr<Allocator> getAllocator() { return tensors_->allocator(); }
+  Ptr<Allocator>       getAllocator() { return tensors_->allocator(); }
   Ptr<TensorAllocator> getTensorAllocator() { return tensors_->getTensorAllocator(); }
 
   Expr findOrRemember(Expr node) {
-    /*
-  Expr rememberingThingsHurt = nullptr;
-  return rememberingThingsHurt;
-  */
+    Expr rememberingThingsHurt = nullptr;
+    return rememberingThingsHurt;
 
     size_t hash = node->hash();
     // memoize constant nodes that are not parameters
@@ -198,16 +194,15 @@ public:
     // std::cerr << "Longterm: " << size1 << " shortterm: " << size2 << std::endl;
 
     // When we have a shortlist, we're getting screwed by the constantly changing shortlist
-    // Which is necessary for this batch, but not for anything else. The current cache mechanism has
-    // no notion of "Keep those tensors cached but delete them once it is over". Conveniently, they
-    // all have different hashes making it difficult to isolate them inside the longterm memory.
+    // Which is necessary for this batch, but not for anything else. The current cache mechanism has no notion of
+    // "Keep those tensors cached but delete them once it is over". Conveniently, they all have different hashes
+    // making it difficult to isolate them inside the longterm memory.
     // Somewhat less important, the same thing happens with:
     // F0::none_QuantMultA Type: alphaNodeOp shape: shape=1 size=1  and
     // none_QuantMultB Type: intgemmQuantMultB shape: shape=1 size=1
     // But as their sizes are very small, they are less of an issue.
-    // Those are actually constant, but as they have different parents, marian cache doesn't match
-    // them. To fix those, in intgemm_interface we're hashing the name() string and comparing its
-    // equality of the equals method.
+    // Those are actually constant, but as they have different parents, marian cache doesn't match them.
+    // To fix those, in intgemm_interface we're hashing the name() string and comparing its equality of the equals method.
     /*if (node->type() == "intgemmSelectColumnsB") {
       auto it = midterm_->find("intgemmSelectColumnsB");
       //std::cerr << "Midterm size: " << midterm_->size() << std::endl;
@@ -237,8 +232,7 @@ public:
         }
       }
 
-      // std::cerr << "Longterm: " << longterm_->size() << " " << node->name() << " Type: " <<
-      // node->type() << " shape: " << node->shape() << std::endl;
+      //std::cerr << "Longterm: " << longterm_->size() << " " << node->name() << " Type: " << node->type() << " shape: " << node->shape() << std::endl;
       (*longterm_)[hash].push_back(node);
     }
 
@@ -250,10 +244,8 @@ public:
         }
       }
     }
-    // std::cerr << "Shortterm size: " << (*shortterm_).size() << " Name: " << node->name() << "
-    // Type: " << node->type() << " shape: " << node->shape() << " bucket_size: " <<
-    // (*shortterm_)[hash].size() << std::endl;
-    (*shortterm_)[hash].push_back(node.get());  // weakPtr
+    //std::cerr << "Shortterm size: " << (*shortterm_).size() << " Name: " << node->name() << " Type: " << node->type() << " shape: " << node->shape() << " bucket_size: " << (*shortterm_)[hash].size() << std::endl;
+    (*shortterm_)[hash].push_back(node.get()); // weakPtr
     return nullptr;
   }
 
@@ -265,32 +257,32 @@ public:
   void clearShorttermMemory() { shortterm_->clear(); }
 
   void clearLongtermMemory() { longterm_->clear(); }
+
 };
 
-typedef std::map<Type, Ptr<Parameters>>
-    ElementTypeParamsMap;  // keep it sorted, hence map not unordered map
+
+
+typedef std::map<Type, Ptr<Parameters>> ElementTypeParamsMap; // keep it sorted, hence map not unordered map
 
 class ExpressionGraph : public std::enable_shared_from_this<ExpressionGraph> {
   size_t count_{0};
 
-  std::unordered_set<Expr>
-      topNodes_;  // current set of roots. In the end, all but one must have been consumed.
+  std::unordered_set<Expr> topNodes_; // current set of roots. In the end, all but one must have been consumed.
 
 protected:  // (these are protected, not private, for ONNX exporting)
   std::list<Expr> nodesForward_;
   std::list<Expr> nodesBackward_;
 
   Ptr<Tensors> tensors_;
-
 private:
+
   std::unordered_map<size_t, std::vector<Expr>> memoized_;
 
-  Type defaultElementType_{Type::float32};  // Type used for storing parameters, currently all
-                                            // parameters have to have the same type
+  Type defaultElementType_{Type::float32}; // Type used for storing parameters, currently all parameters have to have the same type
 
   bool inferenceOnly_{false};
 
-  bool checkpointing_{false};  // use gradient checkpointing if true
+  bool checkpointing_{false}; // use gradient checkpointing if true
 
   bool reloaded_{false};
 
@@ -303,11 +295,10 @@ protected:
 
   // Holds memory and expressions that correspond to graph parameters
   // Now we can have multiple types of parameters in a separate parameters object per value type.
-  // This is currently only accessible through private functions during loading, will abort during
-  // training when params() is called (e.g. optimizer) and there is more or other types than the
-  // default parameter type. Currently the only usecase is inference. Trying to access params() for
-  // non-default parameter type is going to abort. Inference does not need to access a whole set of
-  // parameters.
+  // This is currently only accessible through private functions during loading, will abort during training
+  // when params() is called (e.g. optimizer) and there is more or other types than the default parameter type.
+  // Currently the only usecase is inference. Trying to access params() for non-default parameter type is going
+  // to abort. Inference does not need to access a whole set of parameters.
   ElementTypeParamsMap paramsByElementType_;
   Ptr<Backend> backend_;
 
@@ -326,10 +317,11 @@ public:
       kvParams.second->clear();
   }
 
-  virtual void setDevice(DeviceId deviceId = {0, DeviceType::gpu}, Ptr<Device> device = nullptr);
+  virtual void setDevice(DeviceId deviceId = {0, DeviceType::gpu},
+                         Ptr<Device> device = nullptr);
 
-  void setWorkspaces(Ptr<TensorAllocator> tensors, Ptr<TensorAllocator> cache) {
-    tensors_ = New<Tensors>(tensors, cache);
+  void setWorkspaces(Ptr<TensorAllocator> tensors, Ptr<TensorAllocator> cache){
+      tensors_ = New<Tensors>(tensors, cache);
   }
 
   DeviceId getDeviceId() { return backend_->getDeviceId(); }
@@ -342,13 +334,14 @@ public:
   void setCheckpointing(bool checkpointing) { checkpointing_ = checkpointing; }
   bool isCheckpointing() { return checkpointing_; }
 
-  void switchParams(const std::string& newNamespace) { namespace_ = newNamespace; }
+  void switchParams(const std::string& newNamespace) {
+    namespace_ = newNamespace;
+  }
 
   virtual void copyParams(Ptr<ExpressionGraph> graph) {
     for(auto p : *graph->params())
       param(p->name(), p->shape(), inits::fromTensor(p->val()), p->value_type());
-    forward();  // this will allocate parameters, execute the intializers and therefore copy
-                // parameter values
+    forward(); // this will allocate parameters, execute the intializers and therefore copy parameter values
   }
 
   void reserveWorkspaceMB(size_t num) {
@@ -356,7 +349,9 @@ public:
     tensors_->reserve(bytes);
   }
 
-  void reuseWorkspace(Ptr<ExpressionGraph> graph) { tensors_ = graph->tensors_; }
+  void reuseWorkspace(Ptr<ExpressionGraph> graph) {
+    tensors_ = graph->tensors_;
+  }
 
   /**
    * @brief Performs backpropogation on this expression graph.
@@ -370,7 +365,9 @@ public:
     backward();
   }
 
-  void logActive() { tensors_->logActive(); }
+  void logActive() {
+      tensors_->logActive();
+  }
 
   bool fits() {
     try {
@@ -423,32 +420,30 @@ public:
   void pprintTensors() const;
 
 private:
+
   // Find the named parameter and its typed parent parameter object (params) and return both.
-  // If the parameter is not found return the parent parameter object that the parameter should be
-  // added to. Return [nullptr, nullptr] if no matching parent parameter object exists.
+  // If the parameter is not found return the parent parameter object that the parameter should be added to.
+  // Return [nullptr, nullptr] if no matching parent parameter object exists.
   std::tuple<Expr, Ptr<Parameters>> findParams(const std::string& name,
                                                Type elementType,
                                                bool typeSpecified) const {
-    Expr p;
-    Ptr<Parameters> params;
-    if(typeSpecified) {  // type has been specified, so we are only allowed to look for a parameter
-                         // with that type
+    Expr p; Ptr<Parameters> params;
+    if(typeSpecified) { // type has been specified, so we are only allowed to look for a parameter with that type
       auto it = paramsByElementType_.find(elementType);
       if(it != paramsByElementType_.end()) {
         params = it->second;
         p = params->get(name);
       }
-    } else {  // type has not been specified, so we take any type as long as the name matches
+    } else { // type has not been specified, so we take any type as long as the name matches
       for(auto kvParams : paramsByElementType_) {
         p = kvParams.second->get(name);
 
-        if(p) {  // p has been found, return with matching params object
+        if(p) { // p has been found, return with matching params object
           params = kvParams.second;
           break;
         }
 
-        if(kvParams.first
-           == elementType)  // even if p has not been found, set the params object to be returned
+        if(kvParams.first == elementType) // even if p has not been found, set the params object to be returned
           params = kvParams.second;
       }
     }
@@ -466,9 +461,8 @@ private:
     if(!namespace_.empty())
       name = namespace_ + "::" + name;
 
-    Expr p;
-    Ptr<Parameters> params;
-    std::tie(p, params) = findParams(name, elementType, typeSpecified);
+    Expr p; Ptr<Parameters> params; std::tie
+    (p, params) = findParams(name, elementType, typeSpecified);
 
     if(!params) {
       params = New<Parameters>(elementType);
@@ -493,16 +487,11 @@ private:
     // if graph was reloaded do not allow creation of new parameters
     ABORT_IF(reloaded_,
              "Graph was reloaded and parameter '{}' with type {} (specified: {}) is newly created",
-             name,
-             elementType,
-             typeSpecified);
+             name, elementType, typeSpecified);
 
     // if not check if name is not taken by other node
     auto other = get(name);
-    ABORT_IF(other,
-             "Parameter with name '{}' already exists and has type {}",
-             name,
-             other->value_type());
+    ABORT_IF(other, "Parameter with name '{}' already exists and has type {}", name, other->value_type());
 
     // create parameter node (adds to tape)
     p = Expression<ParamNode>(shared_from_this(), shape, init, elementType, fixed);
@@ -529,16 +518,18 @@ public:
              const Shape& shape,
              const Ptr<inits::NodeInitializer>& init,
              bool fixed = false) {
-    // since this param is called without a specified type, we assume defaultElementType but allow
-    // to check for a different type
+    // since this param is called without a specified type, we assume defaultElementType but allow to check for a different type
     return param(pname, shape, init, defaultElementType_, fixed, /*typeSpecified=*/false);
   }
 
-  Expr constant(const Shape& shape, const Ptr<inits::NodeInitializer>& init, Type elementType) {
+  Expr constant(const Shape& shape,
+                const Ptr<inits::NodeInitializer>& init,
+                Type elementType) {
     return Expression<ConstantNode>(shared_from_this(), shape, init, elementType);
   }
 
-  Expr constant(const Shape& shape, const Ptr<inits::NodeInitializer>& init) {
+  Expr constant(const Shape& shape,
+                const Ptr<inits::NodeInitializer>& init) {
     return Expression<ConstantNode>(shared_from_this(), shape, init, defaultElementType_);
   }
 
@@ -546,7 +537,9 @@ public:
   // shortcut to turn vector of indices to integer tensor, to be used with operators
   // like rows or select
   Expr indices(const std::vector<IndexType>& indicesVector) {
-    return constant({(int)indicesVector.size()}, inits::fromVector(indicesVector), Type::uint32);
+    return constant({(int)indicesVector.size()},
+                    inits::fromVector(indicesVector),
+                    Type::uint32);
   }
   // this version sets up the shape such that the indices are in a given axis
   // Use this if you want to pass these indices to gather().
@@ -555,18 +548,24 @@ public:
     Shape shape;
     shape.resize(indexee->shape().size());
     shape.set(axis, indicesVector.size());
-    return constant(Shape(shape), inits::fromVector(indicesVector), Type::uint32);
+    return constant(Shape(shape),
+                    inits::fromVector(indicesVector),
+                    Type::uint32);
   }
 
   Expr ones(const Shape& shape, Type elementType) {
     return constant(shape, inits::ones(), elementType);
   }
-  Expr ones(const Shape& shape) { return constant(shape, inits::ones(), defaultElementType_); }
+  Expr ones(const Shape& shape) {
+    return constant(shape, inits::ones(), defaultElementType_);
+  }
 
   Expr zeros(const Shape& shape, Type elementType) {
     return constant(shape, inits::zeros(), elementType);
   }
-  Expr zeros(const Shape& shape) { return constant(shape, inits::zeros(), defaultElementType_); }
+  Expr zeros(const Shape& shape) {
+    return constant(shape, inits::zeros(), defaultElementType_);
+  }
 
   // prob = dropProb, e.g. 0.1 means 90% of values are kept
   Expr dropoutMask(float dropProb, const Shape& shape, Type elementType);
@@ -575,18 +574,16 @@ public:
   Expr get(std::string name) {
     if(!namespace_.empty())
       name = namespace_ + "::" + name;
-    Expr p;
-    Ptr<Parameters> params;
-    std::tie(p, params) = findParams(name, defaultElementType_, /*specifiedType=*/false);
+    Expr p; Ptr<Parameters> params; std::tie
+    (p, params) = findParams(name, defaultElementType_, /*specifiedType=*/false);
     return p;
   }
 
   Expr get(std::string name, Type specifiedElementType) {
     if(!namespace_.empty())
       name = namespace_ + "::" + name;
-    Expr p;
-    Ptr<Parameters> params;
-    std::tie(p, params) = findParams(name, specifiedElementType, /*specifiedType=*/true);
+    Expr p; Ptr<Parameters> params; std::tie
+    (p, params) = findParams(name, specifiedElementType, /*specifiedType=*/true);
     return p;
   }
 
@@ -594,17 +591,12 @@ public:
     // There are no parameter objects, that's weird.
     ABORT_IF(paramsByElementType_.empty(), "No parameter object has been created");
 
-    // Safeguard against accessing parameters from the outside with multiple parameter types, not
-    // yet supported
-    // ABORT_IF(paramsByElementType_.size() > 1, "Calling of params() is currently not supported
-    // with multiple ({}) parameters", paramsByElementType_.size());
+    // Safeguard against accessing parameters from the outside with multiple parameter types, not yet supported
+    //ABORT_IF(paramsByElementType_.size() > 1, "Calling of params() is currently not supported with multiple ({}) parameters", paramsByElementType_.size());
 
-    // Safeguard against accessing parameters from the outside with other than default parameter
-    // type, not yet supported
+    // Safeguard against accessing parameters from the outside with other than default parameter type, not yet supported
     auto it = paramsByElementType_.find(defaultElementType_);
-    ABORT_IF(it == paramsByElementType_.end(),
-             "Parameter object for type {} does not exist",
-             defaultElementType_);
+    ABORT_IF(it == paramsByElementType_.end(), "Parameter object for type {} does not exist", defaultElementType_);
 
     return it->second;
   }
@@ -612,8 +604,7 @@ public:
   void setDefaultElementType(Type defaultElementType) {
     ABORT_IF(!paramsByElementType_.empty() && defaultElementType != defaultElementType_,
              "Parameter objects already exist, cannot change default type from {} to {}",
-             defaultElementType_,
-             defaultElementType);
+             defaultElementType_, defaultElementType);
     defaultElementType_ = defaultElementType;
   }
 
@@ -634,14 +625,10 @@ public:
       tensors_->free(tensor);
   }
 
-  // Returns the memory allocator of the graph workspace, allocates row unstructured memory (but
-  // 256-byte aligned)
-  Ptr<Allocator> allocator() {
-    return tensors_->getAllocator();
-  }  // @TODO: rename this to getAllocator();
+  // Returns the memory allocator of the graph workspace, allocates row unstructured memory (but 256-byte aligned)
+  Ptr<Allocator> allocator() { return tensors_->getAllocator(); } // @TODO: rename this to getAllocator();
 
-  // Returns the tensor allocator of the graph workspace, different from above as proper tensor
-  // objects are allocated
+  // Returns the tensor allocator of the graph workspace, different from above as proper tensor objects are allocated
   Ptr<TensorAllocator> getTensorAllocator() { return tensors_->getTensorAllocator(); }
 
   void clear() {
@@ -652,8 +639,8 @@ public:
 
     topNodes_.clear();
 
-    if(tensors_) {
-      tensors_->clear();
+    if(tensors_){
+        tensors_->clear();
     }
   }
 
@@ -672,11 +659,10 @@ public:
       if(pName.substr(0, 8) == "special:")
         continue;
 
-      // if during loading the loaded type is of the same type class as the default element type,
-      // allow conversion; otherwise keep the loaded type. This is used when e.g. loading a float32
-      // model as a float16 model as both have type class TypeClass::float_type.
-      auto loadElementType
-          = isSameTypeClass(item.type, defaultElementType_) ? defaultElementType_ : item.type;
+      // if during loading the loaded type is of the same type class as the default element type, allow conversion;
+      // otherwise keep the loaded type. This is used when e.g. loading a float32 model as a float16 model as both
+      // have type class TypeClass::float_type.
+      auto loadElementType = isSameTypeClass(item.type, defaultElementType_) ? defaultElementType_ : item.type;
       param(pName, item.shape, inits::fromItem(item), loadElementType, /*fixed=*/false);
     }
     if(markReloaded)
@@ -705,9 +691,10 @@ public:
     // Deal with default parameter set object that might not be a mapped object.
     // This gets assigned during ExpressionGraph::setDevice(...) and by default
     // would contain allocated tensors. Here we replace it with a mmapped version.
-    /* This codepath makes MMAP loading work. However, We  are hijacking this codepath to load
-     *binary models Without mmap'ing them. AS a result we break the hidden mmap support. auto it =
-     *paramsByElementType_.find(defaultElementType_); if(it != paramsByElementType_.end()) {
+    /* This codepath makes MMAP loading work. However, We  are hijacking this codepath to load binary models
+     * Without mmap'ing them. AS a result we break the hidden mmap support.
+     *auto it = paramsByElementType_.find(defaultElementType_);
+     *if(it != paramsByElementType_.end()) {
      * // there is parameter object for that type
      * auto defaultParams = std::dynamic_pointer_cast<MappedParameters>(it->second);
      * if(!defaultParams) {
@@ -737,9 +724,7 @@ public:
   // convert all parameters into an array of io::Item elements, for saving
   void save(std::vector<io::Item>& ioItems, Type saveElementType = Type::float32);
 
-  void save(const std::string& name,
-            const std::string& meta = "",
-            Type saveElementType = Type::float32) {
+  void save(const std::string& name, const std::string& meta = "", Type saveElementType = Type::float32) {
     std::vector<io::Item> ioItems;
     save(ioItems, saveElementType);
     if(!meta.empty())
