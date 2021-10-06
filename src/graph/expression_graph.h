@@ -21,12 +21,13 @@ Expr Expression(Args&&... args);
 
 // This is experimental code, expect horrible approaches. The question being
 // addressed is can this method share static-workspaces?  This injection cleans
-// up after itself(?) There can only be a finite number of "workspaces", which
-// are often associated with a gpu-worker (upper bound number of GPUs?) and
-// cpu-worker, upper bounded by number of workers.
+// up after itself(?) 
 class OwningAllocator {
     public:
       // Additional constructor. Share a workspace? Allocator is supplied externally.
+      // There can only be a finite number of "workspaces", which
+      // are often associated with a gpu-worker (upper bound number of GPUs?) and
+      // cpu-worker, upper bounded by number of workers. Something external can control this with a TensorAllocator.
       OwningAllocator(const std::string &name, Ptr<TensorAllocator> allocator): name_(name), actualAllocator_(allocator) {}
       OwningAllocator(const std::string &name, Ptr<Backend> backend): name_(name), actualAllocator_(New<TensorAllocator>(backend)) {}
       OwningAllocator(const std::string &name, Ptr<Backend> backend, Ptr<Device> device): name_(name), actualAllocator_(New<TensorAllocator>(backend, device)) {}
@@ -116,6 +117,12 @@ public:
         shortterm_(New<WeakMemory>()),
         longterm_(New<Memory>())/*,
         midterm_(New<ShortlistMemory>())*/ {}
+
+  Tensors(Ptr<TensorAllocator> tensors, Ptr<TensorAllocator> cache)
+      : tensors_(New<TensorAllocatorType>("tensors_", tensors)), 
+        cache_(New<TensorAllocatorType>("cache_", cache)), 
+        shortterm_(New<WeakMemory>()), 
+        longterm_(New<Memory>()) {}
 
   void reserve(size_t bytes) { 
       tensors_->reserve(bytes); 
@@ -296,6 +303,10 @@ public:
 
   virtual void setDevice(DeviceId deviceId = {0, DeviceType::gpu},
                          Ptr<Device> device = nullptr);
+
+  void setWorkspaces(Ptr<TensorAllocator> tensors, Ptr<TensorAllocator> cache){
+      tensors_ = New<Tensors>(tensors, cache);
+  }
 
   DeviceId getDeviceId() { return backend_->getDeviceId(); }
 
@@ -612,7 +623,9 @@ public:
 
     topNodes_.clear();
 
-    tensors_->clear();
+    if(tensors_){
+        tensors_->clear();
+    }
   }
 
   void setReloaded(bool reloaded) { reloaded_ = reloaded; }
