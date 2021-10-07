@@ -71,6 +71,7 @@ public:
       actualAllocator_->free(t); 
       std::cout << "Removing from " << name_ << "a tensor with params: ";
       debugTensor(t);
+      std::cout << "\n";
       
       // Mark that the tensor is deallocated to avoid double free in the destructor.
       allocations_.erase(t); 
