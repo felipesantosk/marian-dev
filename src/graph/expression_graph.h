@@ -60,18 +60,23 @@ public:
     allocations_.insert(t);
   }
 
+  static void debugTensor(const Tensor &t){
+    std::cout << "(Type = " <<  t->type() << ", " << t->shape() << ")";
+  }
+
   void clear() { actualAllocator_->clear(); }
   void reserve(size_t bytes){ actualAllocator_->reserve(bytes); }
   void free(const Tensor& t) { 
       // Free the tensor.
       actualAllocator_->free(t); 
-      std::cout << "Removing a tensor with params: " << t.shape() << " from " << name_ << " ";
+      std::cout << "Removing from " << name_ << "a tensor with params: ";
+      debugTensor(t);
       
       // Mark that the tensor is deallocated to avoid double free in the destructor.
       allocations_.erase(t); 
 
-      // The followign should be 1 or maybe few more, from the call-site and ahead.
-      std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
+      // The following should be 1 or maybe few more, from the call-site and ahead.
+      // std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
 
   }
 
@@ -81,7 +86,9 @@ public:
   void logActive(){
       std::cout << name_ << "has the following tensors active: \n";
       for(auto t: allocations_){
-          std::cout << reinterpret_cast<size_t>(t.get()) << ": " <<  t.useCount() << "\n";
+          std::cout << reinterpret_cast<size_t>(t.get()) << ": " ;
+          debugTensor(t);
+          std::cout <<  " usage: " << t.useCount() << "\n";
       }
   }
 
