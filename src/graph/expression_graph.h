@@ -39,11 +39,15 @@ public:
       : name_(name), actualAllocator_(New<TensorAllocator>(backend, device)) {}
 
   ~OwningAllocator(){
-      // We know which tensors we allocated. The life of those tensors end
-      // here. Long live the workspace, which we have separated.
+      // This can be  called form separate (client) threads with no control.
+      // The static-allocator is not thread-safe and we should not try
+      // concurrent attempts.
+      
+      /*
       for(auto tensor: allocations_){
           actualAllocator_->free(tensor);
       }
+      */
   }
 
   OwningAllocator(const OwningAllocator&) = delete;
@@ -61,7 +65,7 @@ public:
   void free(const Tensor& t) { 
       // Free the tensor.
       actualAllocator_->free(t); 
-      std::cout << "Removing from " << name_ << " ";
+      std::cout << "Removing a tensor with params: " << t.shape() << " from " << name_ << " ";
       
       // Mark that the tensor is deallocated to avoid double free in the destructor.
       allocations_.erase(t); 
