@@ -61,7 +61,7 @@ public:
   }
 
   static void debugTensor(const Tensor &t){
-    std::cout << "(Type = " <<  t->type() << ", " << t->shape() << ")";
+    // std::cout << "(Type = " <<  t->type() << ", " << t->shape() << ")";
   }
 
   void clear() { actualAllocator_->clear(); }
@@ -69,9 +69,9 @@ public:
   void free(const Tensor& t) { 
       // Free the tensor.
       actualAllocator_->free(t); 
-      std::cout << "Removing from " << name_ << "a tensor with params: ";
-      debugTensor(t);
-      std::cout << "\n";
+      // std::cout << "Removing from " << name_ << "a tensor with params: ";
+      // debugTensor(t);
+      // std::cout << "\n";
       
       // Mark that the tensor is deallocated to avoid double free in the destructor.
       allocations_.erase(t); 
@@ -85,12 +85,14 @@ public:
   // memory has been cleaned up after after a model / in between
   // translations.
   void logActive(){
+      /*
       std::cout << name_ << "has the following tensors active: \n";
       for(auto t: allocations_){
           std::cout << reinterpret_cast<size_t>(t.get()) << ": " ;
           debugTensor(t);
           std::cout <<  " usage: " << t.useCount() << "\n";
       }
+      */
   }
 
   void throwAtReallocation(bool throwAtRealloc){ actualAllocator_->throwAtReallocation(throwAtRealloc); }
