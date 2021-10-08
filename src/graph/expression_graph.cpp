@@ -91,7 +91,7 @@ void ExpressionGraph::pprintTensors() const {
   // The following does not work. 
   std::cout << "TopNodes: " << topNodes_.size() << "\n";
   for(auto root: topNodes_){
-      // trace.push({.depth = 0, .expr = root});
+      // trace.push({/*.depth = */0, /*.expr = */root});
   }
 
 
@@ -101,7 +101,7 @@ void ExpressionGraph::pprintTensors() const {
       auto &e = *p;
       if (!visited[e]){
           visited[e] = true;
-          trace.push({.depth = 0, .expr = e, .parent = nullptr});
+          trace.push({/*.depth =*/0,/*.expr = */e, /*.parent = */nullptr});
           // Assuming directional edges, we don't need a visited flag(?)
           while (!trace.empty()){
               TraceEntry entry = trace.top();
@@ -119,7 +119,7 @@ void ExpressionGraph::pprintTensors() const {
                   auto &child = *q;
                   if (!visited[child]){
                       visited[child] = true;
-                      trace.push({.depth = entry.depth + 1, .expr = child, .parent = entry.expr});
+                      trace.push({/*.depth = */entry.depth + 1, /*.expr = */child, /*.parent = */entry.expr});
                   }
               }
 
