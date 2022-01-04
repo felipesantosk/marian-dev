@@ -101,7 +101,7 @@ Expr get(Expr2 tuple) { return std::get<I>(tuple); }
 // by default, outputs are ordered.
 Expr2 topk(Expr a, int k, int axis, bool descending = true);
 
-// Convenience operator that maps to topk(a, k=1, axis, descending=true) 
+// Convenience operator that maps to topk(a, k=1, axis, descending=true)
 Expr2 argmax(Expr a, int axis);
 
 // Convenience operator that maps to topk(a, k=1, axis, descending=false)
@@ -265,6 +265,7 @@ Expr softmax(Expr a, Expr zeroOneMask, int axis = -1);
 Expr logsoftmax(Expr a);
 
 Expr cross_entropy(Expr a, Expr b, float labelSmoothingAlpha = 0.f, Type outputType = Type::float32);
+Expr cross_entropy_shortlist(Expr logits, Expr indices, Expr shortlist_indices, float labelSmoothingAlpha = 0.f, Type outputType = Type::float32);
 
 Expr unlikelihood(Expr a, Expr b);
 
