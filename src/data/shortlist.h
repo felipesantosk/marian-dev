@@ -25,10 +25,11 @@ bool isBinaryShortlist(const std::string& fileName);
 class Shortlist {
 private:
   std::vector<WordIndex> indices_;    // // [packed shortlist index] -> word index, used to select columns from output embeddings
+  bool scoring_;                      ///< whether this shortlist is used in (re)scoring
 
 public:
   Shortlist(const std::vector<WordIndex>& indices)
-    : indices_(indices) {}
+    : indices_(indices), scoring_(false) {}
 
   const std::vector<WordIndex>& indices() const { return indices_; }
   WordIndex reverseMap(int idx) { return indices_[idx]; }
@@ -40,6 +41,15 @@ public:
     else
       return -1;                                          // return -1 if not found
   }
+
+  /**
+   * Set the operating mode of shortlist.
+   * When set to scoring mode, the shortlist retains the full-vocabulary, in the
+   * usual decoding mode, the vocabulary is restricted to shortlist indices.
+   * @param is_scoring whether or not the shortlist is used for scoring.
+   */
+  void isScoring(bool is_scoring) { scoring_ = is_scoring; }
+  bool isScoring() const { return scoring_; }
 };
 
 class ShortlistGenerator {
