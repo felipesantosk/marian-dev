@@ -316,8 +316,9 @@ namespace marian {
               preparedBias = Expression<marian::cpu::integer::PrepareFakeBiasForBNodeOp>(cachedShortWt_, aQuantMult, bQuantMult);
             }
           }
-          cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int8>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
-
+          if(!shortlist_->isScoring()) {
+            cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int8>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+          }
         } else if ((graph_->getBackend()->isInt16() || matchType<intgemm16>(Wt_->value_type()) )&& graph_->getDeviceId().type == DeviceType::cpu) {
           bool transposed = !isLegacyUntransposedW;
 
@@ -328,15 +329,22 @@ namespace marian {
                 -1000.0 /*clip_value currently unused */,
                 transposed /*Use different routine as Wt is transposed*/);
           }
-          cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int16>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+          if(!shortlist_->isScoring()) {
+            cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int16>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+          }
 
-        } else {
+        } else if (!shortlist_->isScoring()) {
           cachedShortWt_ = index_select(cachedShortWt_, isLegacyUntransposedW ? -1 : 0, shortlist_->indices());
         }
+
         if (preparedBias) {
-          cachedShortb_  = index_select(preparedBias, -1, shortlist_->indices());
+          cachedShortb_  = preparedBias;
         } else if (hasBias_) {
-          cachedShortb_  = index_select(b_, -1, shortlist_->indices());
+          cachedShortb_  = b_;
+        }
+
+        if (cachedShortb_ && !shortlist_->isScoring()) {
+          cachedShortb_ = index_select(cachedShortb_, -1, shortlist_->indices());
         }
       }
 
