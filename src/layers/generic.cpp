@@ -293,47 +293,50 @@ namespace marian {
 
       if (shortlist_ && !cachedShortWt_) { // shortlisted versions of parameters are cached within one batch, then clear()ed
         Expr preparedBias = nullptr;
+
+        cachedShortWt_ = Wt_;
         if ((graph_->getBackend()->isInt8() || matchType<intgemm8>(Wt_->value_type()) )&& graph_->getDeviceId().type == DeviceType::cpu) {
           bool transposed = !isLegacyUntransposedW;
           Expr aQuantMult = nullptr;
           Expr bQuantMult = marian::cpu::integer::quantMult<Type::int8>(Wt_);
-          if (isIntgemm(Wt_->value_type())) {
-            if (graph_->getBackend()->isPrecomputedAlpha()) {
-              aQuantMult = Expression<marian::cpu::integer::fetchAlphaFromModelNodeOp>(Wt_);
-              if (hasBias_) {
-                preparedBias = Expression<marian::cpu::integer::PrepareBiasForBNodeOp>(b_, Wt_, aQuantMult, bQuantMult);
-              } else {
-                preparedBias = Expression<marian::cpu::integer::PrepareFakeBiasForBNodeOp>(Wt_, aQuantMult, bQuantMult);
-              }
-            }
-            cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int8>(Wt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
-          } else {
-            cachedShortWt_ = marian::cpu::integer::prepareB<Type::int8>(Wt_, marian::cpu::integer::quantMult<Type::int8>(Wt_), -1000.0 /*clip_value currently unused */, transposed /*Use different routine as Wt is transposed*/);
-            if (graph_->getBackend()->isPrecomputedAlpha()) {
-              aQuantMult = Expression<marian::cpu::integer::fetchAlphaFromModelNodeOp>(cachedShortWt_);
-              if (hasBias_) {
-                preparedBias = Expression<marian::cpu::integer::PrepareBiasForBNodeOp>(b_, cachedShortWt_, aQuantMult, bQuantMult);
-              } else {
-                preparedBias = Expression<marian::cpu::integer::PrepareFakeBiasForBNodeOp>(cachedShortWt_, aQuantMult, bQuantMult);
-              }
-            }
-            cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int8>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+
+          if(!isIntgemm(cachedShortWt_->value_type())) {
+            cachedShortWt_ = marian::cpu::integer::prepareB<Type::int8>(
+                cachedShortWt_,
+                marian::cpu::integer::quantMult<Type::int8>(cachedShortWt_),
+                -1000.0 /*clip_value currently unused */,
+                transposed /*Use different routine as Wt is transposed*/);
           }
+
+          if(graph_->getBackend()->isPrecomputedAlpha()) {
+            aQuantMult = Expression<marian::cpu::integer::fetchAlphaFromModelNodeOp>(cachedShortWt_);
+            if(hasBias_) {
+              preparedBias = Expression<marian::cpu::integer::PrepareBiasForBNodeOp>(b_, cachedShortWt_, aQuantMult, bQuantMult);
+            } else {
+              preparedBias = Expression<marian::cpu::integer::PrepareFakeBiasForBNodeOp>(cachedShortWt_, aQuantMult, bQuantMult);
+            }
+          }
+          cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int8>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+
         } else if ((graph_->getBackend()->isInt16() || matchType<intgemm16>(Wt_->value_type()) )&& graph_->getDeviceId().type == DeviceType::cpu) {
           bool transposed = !isLegacyUntransposedW;
-          if (isIntgemm(Wt_->value_type())) {
-            cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int16>(Wt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
-          } else {
-            cachedShortWt_ = marian::cpu::integer::prepareB<Type::int16>(Wt_, marian::cpu::integer::quantMult<Type::int16>(Wt_), -1000.0 /*clip_value currently unused */, transposed /*Use different routine as Wt is transposed*/);
-            cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int16>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+
+          if(!isIntgemm(cachedShortWt_->value_type())) {
+            cachedShortWt_ = marian::cpu::integer::prepareB<Type::int16>(
+                cachedShortWt_,
+                marian::cpu::integer::quantMult<Type::int16>(cachedShortWt_),
+                -1000.0 /*clip_value currently unused */,
+                transposed /*Use different routine as Wt is transposed*/);
           }
+          cachedShortWt_ = marian::cpu::integer::selectColumnsB<Type::int16>(cachedShortWt_, shortlist_->indices(), -1000.0 /*clip_value currently unused */);
+
         } else {
-          cachedShortWt_ = index_select(Wt_, isLegacyUntransposedW ? -1 : 0, shortlist_->indices());
+          cachedShortWt_ = index_select(cachedShortWt_, isLegacyUntransposedW ? -1 : 0, shortlist_->indices());
         }
         if (preparedBias) {
-          cachedShortb_  = index_select(preparedBias ,                             -1, shortlist_->indices());
+          cachedShortb_  = index_select(preparedBias, -1, shortlist_->indices());
         } else if (hasBias_) {
-          cachedShortb_  = index_select(b_ ,                             -1, shortlist_->indices());
+          cachedShortb_  = index_select(b_, -1, shortlist_->indices());
         }
       }
 
