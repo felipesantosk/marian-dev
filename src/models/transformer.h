@@ -8,6 +8,7 @@
 #include "layers/constructors.h"
 #include "models/decoder.h"
 #include "models/encoder.h"
+#include "models/model_base.h"
 #include "models/states.h"
 #include "models/transformer_factory.h"
 #include "rnn/constructors.h"
@@ -862,10 +863,13 @@ public:
     //************************************************************************//
 
     // final feed-forward layer (output)
-    if(shortlist_)
+    if(shortlist_){
+      models::usage use = options_->get<models::usage>("usage", models::usage::translation);
+      shortlist_->isScoring(use == models::usage::scoring);
       output_->setShortlist(shortlist_);
+    }
     auto logits = output_->applyAsLogits(decoderContext); // [-4: beam depth=1, -3: max length, -2: batch size, -1: vocab or shortlist dim]
-    
+
     // return unormalized(!) probabilities
     Ptr<DecoderState> nextState;
     if (opt<std::string>("transformer-decoder-autoreg", "self-attention") == "rnn") {
