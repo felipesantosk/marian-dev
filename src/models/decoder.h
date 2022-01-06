@@ -45,7 +45,7 @@ public:
         subBatch->data();
 #endif
 
-    ABORT_IF(shortlist_, "How did a shortlist make it into training?");
+    if(shortlist_){ LOG(debug, "Decode with shortlist set."); }
 
     auto yDelayed = shift(y, {1, 0, 0}); // insert zero at front; first word gets predicted from a target embedding of 0
 
