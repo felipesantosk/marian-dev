@@ -71,6 +71,12 @@ public:
     // multi-objective training
     Ptr<MultiRationalLoss> multiLoss = newMultiLoss(options_);
 
+    // When scoring (cost-type is ce-rescore) and a shortlist is available
+    if(encdec->getShortlist() && options_->get<std::string>("cost-type", "") == "ce-rescore") {
+      LOG(info, "Shortlist in costs.");
+      loss_->setSubset(graph->indices(encdec->getShortlist()->indices()));
+    }
+
     // @TODO: adapt to multi-objective training with multiple decoders
     auto partialLoss = loss_->apply(state->getLogProbs(),
                                     state->getTargetWords(),
