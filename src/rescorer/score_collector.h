@@ -19,7 +19,7 @@ public:
   virtual void Write(long id,
                      float score,
                      const data::SoftAlignment& align = {},
-                     const std::vector<float>& wordScores = {});
+                     const std::vector<float>& wordScores = {} );
 
 protected:
   long nextId_{0};
@@ -57,7 +57,7 @@ public:
   virtual void Write(long id,
                      float score,
                      const data::SoftAlignment& align = {},
-                     const std::vector<float>& wordScores = {}) override;
+                     const std::vector<float>& wordScores = {} ) override;
 
 private:
   std::string nBestList_;

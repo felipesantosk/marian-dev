@@ -512,6 +512,8 @@ class CorpusIterator;
 
 class CorpusBase : public DatasetBase<SentenceTuple, CorpusIterator, CorpusBatch>, public RNGEngine {
 public:
+  static std::vector< std::string> BpeWords;
+  
   typedef SentenceTuple Sample;
 
   CorpusBase(Ptr<Options> options, bool translate = false);

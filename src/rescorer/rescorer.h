@@ -71,6 +71,8 @@ public:
     options_->set("inference", true);
     options_->set("shuffle", "none");
     options_->set("cost-type", "ce-rescore"); // indicates that to keep separate per-batch-item scoresForSummary
+    options_->set("use-legacy-batching", false);
+    
 
     if(options_->get<bool>("n-best"))
       corpus_ = New<CorpusNBest>(options_);
@@ -139,6 +141,7 @@ public:
     // @TODO: make normalize here a float and pass into loss to compute the same way as in decoding
     bool normalize = options_->get<bool>("normalize");
     bool wordLevel = options_->get<bool>("word-scores", false);
+    
 
     ABORT_IF(wordLevel && summarize, "Word-level scores can not be printed if --summarize is enabled");
 
@@ -205,7 +208,7 @@ public:
               for(size_t i = 0; i < batch->size(); ++i)
                 output->Write((long)batch->getSentenceIds()[i],
                               -1.f * sentScores[i],  // report logProb while score is CE, hence negate
-                              aligns[i]);
+                              aligns[i] );
             } else {
               std::vector<float> wordScores;
               float sentScore{0.f};

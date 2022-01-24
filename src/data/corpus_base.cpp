@@ -30,6 +30,7 @@ const SentenceTuple& CorpusIterator::dereference() const {
   return tup_;
 }
 
+
 // These types of corpus constructors are used in in-training validators
 // (only?), so do not load additional files for guided alignment or data
 // weighting.
@@ -60,6 +61,8 @@ CorpusBase::CorpusBase(const std::vector<std::string>& paths,
 
   initEOS(/*training=*/true);
 }
+
+std::vector<std::string> CorpusBase::BpeWords;
 
 CorpusBase::CorpusBase(Ptr<Options> options, bool translate)
     : DatasetBase(options),
@@ -393,7 +396,52 @@ void CorpusBase::addWordsToSentenceTuple(const std::string& line,
   // This turns a string in to a sequence of numerical word ids. Depending
   // on the vocabulary type, this can be non-trivial, e.g. when SentencePiece
   // is used.
-  Words words = vocabs_[batchIndex]->encode(line, /*addEOS =*/ addEOS_[batchIndex], inference_);
+  
+  Words words;
+  
+  if( ( batchIndex == 1 ) && options_->get< bool >( "word-indexes") )
+  {
+    std::istringstream f(line);
+    std::string wordIndexStr;
+    
+    while (std::getline(f, wordIndexStr, ' ')) {
+      words.push_back( Word::fromWordIndex( std::stoull( wordIndexStr ) ) );
+    }
+  }
+  else
+  {
+    words = vocabs_[batchIndex]->encode(line, /*addEOS =*/ addEOS_[batchIndex], inference_);
+  }
+  
+  //std::cout <<  "[" << batchIndex << "][Tokens]: ";
+  
+  if( batchIndex == 0 ) 
+  {
+    BpeWords.emplace_back();
+  }
+  else if( batchIndex == 1 ) 
+  { 
+    BpeWords.back().append( " |||" ); 
+  }
+  
+  for( const auto& word : words )
+  {
+    BpeWords.back().append( " " + ( *vocabs_[batchIndex] )[word] );
+  }
+  
+  
+  
+  // if( options_->get< bool >( "print-words") )
+  // {  
+  //   std::cout <<  "[" << batchIndex  <<"]:" ;
+  //   for( const auto& word : words )
+  //   {
+  //     std::cout <<  "(" << ( *vocabs_[batchIndex] ) [word] << ")" ;
+  //   }
+    
+  //   std::cout <<  std::endl;
+  // }
+
 
   ABORT_IF(words.empty(), "Empty input sequences are presently untested");
 

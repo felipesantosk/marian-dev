@@ -3,6 +3,8 @@
 #include "common/logging.h"
 #include "common/utils.h"
 
+#include "data/corpus.h"
+
 #include <iostream>
 
 namespace marian {
@@ -57,12 +59,19 @@ void ScoreCollector::Write(long id, const std::string& message) {
 void ScoreCollector::Write(long id,
                            float score,
                            const data::SoftAlignment& align /*= {}*/,
-                           const std::vector<float>& wordScores /*= {}*/) {
-  auto msg = std::to_string(score);
-  if(!alignment_.empty() && !align.empty())
-    msg += " ||| " + getAlignment(align);
+                           const std::vector<float>& wordScores /*= {}*/ ) {
+  
+  std::string msg = std::to_string(id);
+  
+  if(!data::CorpusBase::BpeWords[id].empty())
+    msg += " |||" + data::CorpusBase::BpeWords[id];
   if(!wordScores.empty())
     msg += " ||| WordScores= " + utils::join(wordScores, " ");
+  if(!alignment_.empty() && !align.empty())
+    msg += " ||| AttentionScores= " + getAlignment(align);
+    
+   msg += " ||| " + std::to_string(score);
+   
   Write(id, msg);
 }
 
@@ -89,7 +98,7 @@ ScoreCollectorNBest::ScoreCollectorNBest(const Ptr<Options>& options)
 void ScoreCollectorNBest::Write(long id,
                                 float score,
                                 const data::SoftAlignment& align /*= {}*/,
-                                const std::vector<float>& wordScores /*= {}*/) {
+                                const std::vector<float>& wordScores /*= {}*/ ) {
   std::string line;
   {
     std::lock_guard<std::mutex> lock(mutex_);

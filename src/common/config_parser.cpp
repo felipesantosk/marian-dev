@@ -741,6 +741,8 @@ void ConfigParser::addOptionsScoring(cli::CLIWrapper& cli) {
      ->implicit_val("1"),
   cli.add<bool>("--word-scores",
       "Print word-level scores. One score per subword unit, not normalized even if --normalize");
+  cli.add<bool>("--print-words", "Print the subwords");
+  cli.add<bool>("--word-indexes", "Expected a word indexes on second train set file");
 
   addSuboptionsInputLength(cli);
   addSuboptionsTSV(cli);
