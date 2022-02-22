@@ -201,7 +201,7 @@ class GRU : public Cell {
 protected:
   std::string prefix_;
 
-  Expr U_, W_, b_;
+  Expr U_, W_, b_, bu_;
   Expr gamma1_;
   Expr gamma2_;
 
@@ -224,31 +224,29 @@ public:
     dropout_ = opt<float>("dropout", 0);
     final_ = opt<bool>("final", false);
 
-    auto U = graph->param(
-        prefix + "_U", {dimState, 2 * dimState}, inits::glorotUniform());
-    auto Ux = graph->param(
-        prefix + "_Ux", {dimState, dimState}, inits::glorotUniform());
-    U_ = concatenate({U, Ux}, /*axis =*/ -1);
+    // auto U = graph->param(
+    //     prefix + "_U", {dimState, 2 * dimState}, inits::glorotUniform());
+    // auto Ux = graph->param(
+    //     prefix + "_Ux", {dimState, dimState}, inits::glorotUniform());
+    // U_ = concatenate({U, Ux}, /*axis =*/ -1);
 
-    if(dimInput > 0) {
-      auto W = graph->param(
-          prefix + "_W", {dimInput, 2 * dimState}, inits::glorotUniform());
-      auto Wx = graph->param(
-          prefix + "_Wx", {dimInput, dimState}, inits::glorotUniform());
-      W_ = concatenate({W, Wx}, /*axis =*/ -1);
-    }
+    // if(dimInput > 0) {
+    //   auto W = graph->param(
+    //       prefix + "_W", {dimInput, 2 * dimState}, inits::glorotUniform());
+    //   auto Wx = graph->param(
+    //       prefix + "_Wx", {dimInput, dimState}, inits::glorotUniform());
+    //   W_ = concatenate({W, Wx}, /*axis =*/ -1);
+    // }
 
-    auto b = graph->param(prefix + "_b", {1, 2 * dimState}, inits::zeros());
-    auto bx = graph->param(prefix + "_bx", {1, dimState}, inits::zeros());
-    b_ = concatenate({b, bx}, /*axis =*/ -1);
+    // auto b = graph->param(prefix + "_b", {1, 2 * dimState}, inits::zeros());
+    // auto bx = graph->param(prefix + "_bx", {1, dimState}, inits::zeros());
+    // b_ = concatenate({b, bx}, /*axis =*/ -1);
 
     // @TODO use this and adjust Amun model type saving and loading
-    // U_ = graph->param(prefix + "_U", {dimState, 3 * dimState},
-    //                  (Expr a) : UnaryNodeOp(a)inits::glorotUniform());
-    // W_ = graph->param(prefix + "_W", {dimInput, 3 * dimState},
-    //                  (Expr a) : UnaryNodeOp(a)inits::glorotUniform());
-    // b_ = graph->param(prefix + "_b", {1, 3 * dimState},
-    //                  (Expr a) : UnaryNodeOp(a)inits::zeros());
+    U_ = graph->get(prefix + "_U");
+    W_ = graph->get(prefix + "_W");
+    b_ = graph->get(prefix + "_b");
+    bu_ = graph->get(prefix + "_bu");
 
     if(dropout_ > 0.0f) {
       if(dimInput)
@@ -282,9 +280,13 @@ public:
 
     input = dropout(input, dropMaskX_);
 
+    static int direction = 0;
+
     auto xW = dot(input, W_);
     if(layerNorm_)
       xW = layerNorm(xW, gamma1_);
+
+    debug( xW, direction++  == 0 ? "xW_bi": "xW_bi_r" );
 
     return {xW};
   }
@@ -292,11 +294,18 @@ public:
   virtual State applyState(std::vector<Expr> xWs,
                            State state,
                            Expr mask = nullptr) override {
+    static int direction = 0;
+
     auto stateOrig = state.output;
     auto stateDropped = stateOrig;
     stateDropped = dropout(stateOrig, dropMaskS_);
 
-    auto sU = dot(stateDropped, U_);
+    debug( stateDropped, direction == 0 ? "state_bi": "state_bi_r" );
+
+    auto sU = dot(stateDropped, U_) + bu_;
+
+    debug( sU, direction == 0 ? "sU_bi": "sU_bi_r" );
+
     if(layerNorm_)
       sU = layerNorm(sU, gamma2_);
 
@@ -311,6 +320,8 @@ public:
 
     auto output = mask ? gruOps({stateOrig, xW, sU, b_, mask}, final_)
                        : gruOps({stateOrig, xW, sU, b_}, final_);
+
+    debug( output, direction++  == 0 ? "out_bi": "out_bi_r" );
 
     return {output, state.cell};  // no cell state, hence copy
   }

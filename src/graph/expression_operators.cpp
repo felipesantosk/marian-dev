@@ -16,9 +16,18 @@
 
 namespace marian {
 
+
+std::map< std::string, Expr > debugExprs;
+
 Expr debug(Expr a, const std::string& message) {
   a->debug(message);
+  debugExprs[message] = a;
   return a;
+}
+
+Expr getDebugExpr(const std::string& message)
+{
+  return debugExprs[message];
 }
 
 Expr checkpoint(Expr a) {
