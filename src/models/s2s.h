@@ -43,7 +43,8 @@ public:
         ("dimState", opt<int>("dim-rnn"))                          //
         ("dropout", dropoutRnn)                                    //
         ("layer-normalization", opt<bool>("layer-normalization"))  //
-        ("skip", opt<bool>("skip"));
+        ("skip", opt<bool>("skip"))                                //
+        ("hidden-bias", opt<bool>("hidden-bias", false));
 
     for(int i = 1; i <= first; ++i) {
       auto stacked = rnn::stacked_cell();
@@ -69,7 +70,8 @@ public:
         ("dimState", opt<int>("dim-rnn"))                          //
         ("dropout", dropoutRnn)                                    //
         ("layer-normalization", opt<bool>("layer-normalization"))  //
-        ("skip", opt<bool>("skip"));
+        ("skip", opt<bool>("skip"))                                //
+        ("hidden-bias", opt<bool>("hidden-bias", false));
 
     for(int i = 1; i <= first; ++i) {
       auto stacked = rnn::stacked_cell();

@@ -6,8 +6,6 @@ namespace marian {
 
 Expr debug(Expr a, const std::string& message = "");
 
-Expr getDebugExpr(const std::string& message);
-
 Expr checkpoint(Expr a);
 
 typedef Expr(ActivationFunction)(Expr);
